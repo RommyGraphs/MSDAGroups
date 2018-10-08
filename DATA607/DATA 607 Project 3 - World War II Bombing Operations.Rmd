@@ -1,0 +1,450 @@
+---
+title: "DATA 607 Project 3 - World War II Aerial Bombing Operations"
+author: "Jason Givens-Doyle, Romerl Elizes & Soumya Ghosh"
+date: "September 29, 2018"
+output: 
+  html_document: 
+    toc: true
+    df_print: kable
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+  #  code_folding:hide
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### Data Title: World War II Theater History of Operations (THOR) Data
+### Source: Data.World 
+
+[Project Path](https://data.world/datamil/world-war-ii-thor-data) 
+
+### Data Summary:
+
+Theater History of Operations (THOR), is a painstakingly cultivated database of historic aerial bombings from World War I through Vietnam. The value of THOR is immense, and has already proven useful in finding unexploded ordinance in Southeast Asia and improving Air Force combat tactics. This dataset combines digitized paper mission reports from WWII. It can be searched by date, conflict, geographic location and more than 60 other data elements to form a live-action sequence of the air war from 1939 to 1945. The records include U.S. and Royal Air Force data, as well as some Australian, New Zealand and South African air force missions.
+
+### Database Components:
+
+#### This analysis involves a MySQL source database called 'ww2analysis'. This database has 3 tables -
+##### 1. DimWeapon
+##### 2. DimAirCraft
+##### 3. AirBombingOps
+
+**Note:** MySQL database software need to be installed in the local computer in order to successfully execute the R markdown code.
+
+Below are the steps involved in preparing the MySQL DB environment necesaary for the R markdown code to run successfully -
+
+#### **Step 1.** Run the DDL script mentioned below in order to create a database called 'ww2analysis' along with the necessary tables as mentioned above -
+
+GitHub location:[DDL Script](https://raw.githubusercontent.com/RommyGraphs/MSDAGroups/master/DATA607/SQL%20Scripts/ww2analysis_DDL%20Script.sql) 
+
+#### **Step 2.** Run the Bulk Data Load script to load necessary data into the database -
+
+GitHub Location: [Bulk Load Script](https://raw.githubusercontent.com/RommyGraphs/MSDAGroups/master/DATA607/SQL%20Scripts/Bulk%20Data%20Upload%20Commands.txt)
+
+**Note:** All the source CSV data files are also available in the below mention location -
+GitHub Location: [Source Data Files](https://github.com/RommyGraphs/MSDAGroups/tree/master/DATA607/Source%20Data)
+
+Alternatively, MySQL Database dump files can also be loaded from below location in order to set up the database locally to analyze this data set -
+
+GitHub Location: [MySQL Dump Files](https://github.com/RommyGraphs/MSDAGroups/tree/master/DATA607/MySQL%20Data%20Dump)
+
+#### **Step 3.** Create a ODBC System DSN called 'MySQL_WW2Analyis' in the local machine with 'ww2analysis' as the default database with appropriate root credentials or with an appropriate user id having READ access to 'ww2analysis' database.
+
+
+
+### R Libraries:
+
+Load necessary libraries -
+
+```{r message=FALSE, warning=FALSE}
+library(RODBC)
+library(knitr)
+library(kableExtra)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(ggplot2)
+library(plotly)
+library(maps)
+library(mapdata)
+library(ggrepel) #not using this at the moment, but it does give the option to add labels.  While not useful for the 
+```
+
+
+### Database Connection and Processing:
+
+Use an ODBC data source called 'MySQL_WW2Analyis' in order to connect to the database.
+
+```{r dbConnect}
+con <- odbcConnect("MySQL_WW2Analyis")
+options(knitr.table.format = "html")
+```
+
+
+1.  Import data into R:
+
+#### Table 1: World War II Allied Air Crafts:
+
+```{r AirCraftTable}
+aircraftDF <- as.data.frame(sqlFetch(con,"dimaircraft"),stringsAsFactors = FALSE)
+aircraftDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+#### Table 2: World War II Weapons:
+
+```{r WeaponsTable}
+weaponsDF <- as.data.frame(sqlFetch(con,"dimweapon"),stringsAsFactors = FALSE)
+aircraftDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+#### Table 3: World War II Aerial Bombing Missions:
+
+```{r BombingMissionsTable}
+tableWW2 <- tbl_df(as.data.frame(sqlFetch(con,"airbombingops"),stringsAsFactors = FALSE,na.strings=""))
+
+glimpse(tableWW2) 
+
+head(tableWW2, n=100) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+```
+
+### Data Cleasing Operations:
+
+2.  Focus on selective fields useful for further analysis by removing highly sparsed columns:
+
+
+```{r cleandataframe, eval=TRUE}
+tableWW2 <- tableWW2[, -which(names(tableWW2) %in% c("tgt_country_code","tgt_id","tgt_industry_code","source_latitude","source_longitude","mds","takeoff_latitude","takeoff_longitude","target_comment","mission_comments","source","database_edit_comments", "bda", "callsign", "rounds_ammo", "spares_return_ac","wx_fail_ac", "mech_fail_ac", "misc_fail_ac", "time_over_target","sighting_method_code","sighting_explanation"))]
+
+### Replace BLANK theater values with NA
+tableWW2$theater <- ifelse(tableWW2$theater == "","NA",str_trim(tableWW2$theater))
+
+### Lookup table for theater names
+lut <- c("MTO" = "Mediterranean Theater","PTO" = "Pacific Theater", "ETO" = "European Theater","CBI" = "China Burma India","EAST AFRICA" = "East Africa","MADAGASCAR" = "Madagascar","NA" = "Unknown")
+
+tableWW2$theater_name <- lut[tableWW2$theater]
+
+### Extract Mission Year and Month
+tableWW2$Mission_Month <- substr(tableWW2$msndate,1,7)
+tableWW2$Mission_Year <- substr(tableWW2$msndate,1,4)
+
+### Format Target Country and Location 
+tableWW2$tgt_country <- str_to_title(tableWW2$tgt_country)
+tableWW2$tgt_location <- str_to_title(tableWW2$tgt_location)
+
+```
+
+### Global Summary View of World War II Aerial Bombing Operations
+
+3.  Summerizing the data by Theater of Operations:
+
+European (ETO), Pacific(PTO) and Mediterranean(MTO) are the major theaters where aerial bombing operations were conducted. We have decided to focus on two primary theaters of operations ETO and PTO for further analysis.
+
+```{r ThorSummary, fig.width = 10, fig.height = 6}
+theaterSummary <- tableWW2 %>% filter(theater != '') %>% group_by(theater_name) %>% summarise(Missions = n())
+
+ggplot(theaterSummary, aes(x = reorder(theater_name, Missions),y= Missions/sum(Missions))) +
+  geom_bar( stat = "identity", position = "dodge", fill = "blue") +
+  geom_text(aes(label=percent(Missions/sum(Missions))), hjust=-0.2, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_y_continuous(labels=percent) +
+  theme(axis.text.x=element_text(angle = 0, vjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("WWII Missions by Theater of Operations") +
+  labs(x = "Theater of Operations",y = "% of Aerial Missions") +
+  coord_flip()
+```
+
+4.  Target Countries of WW II Aerial Bombing Operations -
+
+```{r GlobalMissionDistribution, fig.width = 10, fig.height = 4 }
+WorldData <- map_data('world')
+WorldData %>% filter(region != "Antarctica") -> WorldData
+WorldData <- fortify(WorldData)
+
+sites <- tableWW2 %>% filter(theater != '') %>% group_by(tgt_country) %>% summarise(Missions = n(),Tons = sum(total_tons))
+
+ggplot() + 
+  geom_map(data=WorldData, map=WorldData,
+           aes(x=long, y=lat, group=group, map_id=region),
+           fill="white", colour="#7f7f7f", size=0.5) + 
+  geom_map(data=sites, map=WorldData,
+           aes(fill=Missions, map_id=tgt_country),
+           colour="#7f7f7f", size=0.5) + 
+  coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90)) + 
+  scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") + 
+  scale_y_continuous(breaks=c()) + 
+  scale_x_continuous(breaks=c()) + 
+  labs(fill="Mission Count", title="Global View of the Aerial Boming Missions", x="", y="") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme_bw() + 
+  theme(panel.border = element_blank())
+```
+
+5.  Top 10 Countries on no. aerial bombing operations
+
+```{r Top10Missions, fig.width = 8, fig.height = 6}
+topCountries <- sites %>% group_by(tgt_country) %>% summarise(Missions = sum(Missions)) %>% mutate(rank = rank(-Missions)) %>% filter(rank <= 10) %>% arrange(rank)
+
+ggplot(topCountries, aes(x = reorder(tgt_country,-Missions), y = Missions)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "orange") + 
+  geom_text(aes(label=Missions), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Top 10 Countries based on # of Aerial Bombing Missions") +
+  labs(x = "Countries")
+  
+```
+
+
+6.  Top 10 Countries based on no. total tons of explosives dropped:
+
+```{r Top10ExposiveTons, fig.width = 8, fig.height = 6}
+topCountries <- sites %>% group_by(tgt_country) %>% summarise(Tons = sum(Tons)) %>% mutate(rank = rank(-Tons)) %>% filter(rank <= 10) %>% arrange(rank)
+
+ggplot(topCountries, aes(x = reorder(tgt_country,-Tons), y = Tons)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "maroon") + 
+  geom_text(aes(label=Tons), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Top 10 Countries based on Total Tons of Explosives Dropped") +
+  labs(x = "Countries")
+  
+```
+
+7.  Timeline of Aerial Bombing Operations:
+
+```{r BombingTimeline, fig.width = 10, fig.height = 6}
+bomibngTimeline <- tableWW2 %>% group_by(Mission_Month) %>% summarise(Missions = n())
+
+ggplot(bomibngTimeline, aes(x = Mission_Month, y = Missions)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "orange") + 
+  #geom_text(aes(label=Missions), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Timeline of WW II Aerial Bombings") +
+  labs(x = "Year-Months")
+  
+```
+
+### European Vs. Pacific Theaters of Operations:
+
+We wanted to focus our analysis towards the two most important theaters of actions.
+
+8.  Separating data frame into two theaters: European and Pacific
+
+```{r separatingdataframe, eval=TRUE}
+tableWW2ETO <- subset(tableWW2, theater == "ETO")
+tableWW2PTO <- subset(tableWW2, theater == "PTO")
+```
+
+#### 8-A. Summmary for ETO Data Frame
+```{r summarizedataframeETO, eval=TRUE}
+summary(tableWW2ETO)
+```
+
+#### 8-B. Summmary for PTO Data Frame
+```{r summarizedataframePTO, eval=TRUE}
+summary(tableWW2PTO)
+```
+
+9.  Interesting Questions about Data:
+
+### 9-A. What are the allocation of bombers used in ETO and PTO?
+
+**European Theater:**
+
+```{r aircraftdistributionETO, eval=TRUE, fig.width = 10, fig.height = 7}
+ETOAircrafttype <- as.data.frame(table(tableWW2ETO$aircraft_name))
+names(ETOAircrafttype) <- c("Aircraft", "Count")
+ETOAircrafttype <- ETOAircrafttype[-which(ETOAircrafttype$Count == 0 ), ] # removing rows with 0 fields 
+ggplot(ETOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "green") +
+  geom_text(aes(label=Count), vjust= -0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  ggtitle("ETO Aircraft Types")  +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Aircraft Type")
+```
+
+**Pacific Theater:**
+
+```{r aircraftdistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7}
+PTOAircrafttype <- as.data.frame(table(tableWW2PTO$aircraft_name))
+names(PTOAircrafttype) <- c("Aircraft", "Count")
+PTOAircrafttype <- PTOAircrafttype[-which(PTOAircrafttype$Count == 0 ), ] # removing rows with 0 fields 
+ggplot(PTOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "red") +
+  geom_text(aes(label=Count), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  ggtitle("PTO Aircraft Types")  +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Aircraft Type")
+```
+
+### 9-B.What are the allocation of tons of explosives of target countries in ETO and PTO?
+
+**European Theater:**
+
+```{r tonsexplosivescountrydistributionETO, eval=TRUE,fig.width = 10, fig.height = 7}
+
+#ETOExplosives <- tableWW2ETO[, which(names(tableWW2ETO) %in% c("tgt_country","total_tons"))]
+#ETOExplosives <- ETOExplosives[!(is.na(ETOExplosives$total_tons) | ETOExplosives$total_tons==""), ]
+#head(ETOExplosives, n=100)
+
+tonsByCountriesETO <- tableWW2 %>% filter(theater == 'ETO') %>% group_by(tgt_country) %>% summarise(Tons = sum(total_tons))  %>% mutate(rank = rank(-Tons)) %>% filter(rank <= 10) %>% arrange(rank)
+
+ggplot(tonsByCountriesETO, aes(x = reorder(tgt_country,-Tons), y = Tons)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "orange") + 
+  geom_text(aes(label=Tons), vjust=-0.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5)) +
+#  facet_wrap(~theater) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Top 10 Countries in ETO based on Total Tons of Explosives Dropped") +
+  labs(x = "Countries", y = "Tons of Explosives")
+
+```
+**Pacific Theater:**
+
+```{r tonsexplosivescountrydistributionPTO, eval=TRUE,fig.width = 10, fig.height = 7}
+tonsByCountriesPTO <- tableWW2 %>% filter(theater == 'PTO') %>% group_by(tgt_country) %>% summarise(Tons = sum(total_tons))  %>% mutate(rank = rank(-Tons)) %>% filter(rank <= 10) %>% arrange(rank)
+
+ggplot(tonsByCountriesPTO, aes(x = reorder(tgt_country,-Tons), y = Tons)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "orange") + 
+  geom_text(aes(label=Tons), vjust=-0.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 45, vjust = 0.5)) +
+#  facet_wrap(~theater) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Top 10 Countries in PTO based on Total Tons of Explosives Dropped") +
+  labs(x = "Countries", y = "Tons of Explosives")
+```
+
+### 9-C. What is the dispersion of target countries for either ETO and PTO?
+
+**European Theater:**
+
+```{r targetcountrydistributionETO, eval=TRUE, fig.width = 10, fig.height = 7}
+ETOTCountry <- as.data.frame(table(tableWW2ETO$tgt_country))
+names(ETOTCountry) <- c("Country", "Missions")
+#ETOTCountry <- ETOTCountry[-which(ETOTCountry$Missions == 0 ), ] # removing rows with 0 fields 
+ggplot(ETOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "blue") +
+  geom_text(aes(label=Missions), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  ggtitle("ETO Missions by Target Country") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Target Countries")
+```
+
+**Pacific Theater:**
+
+```{r targetcountrydistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7}
+PTOTCountry <- as.data.frame(table(tableWW2PTO$tgt_country))
+names(PTOTCountry) <- c("Country", "Missions")
+PTOTCountry <- PTOTCountry[-which(PTOTCountry$Missions <= 10 ), ] # removing rows with 0 fields 
+ggplot(PTOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "blue") +
+  geom_text(aes(label=Missions), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  ggtitle("PTO Missions by Target Country") + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Target Countries") 
+```
+
+10. Does bombing tonnage increase for a specific period and what theater?
+
+**European Theater:**
+
+```{r tonsExplosivesOverTime, eval=TRUE,fig.width = 10, fig.height = 10}
+
+tonsByTheaterTime <- tableWW2 %>% group_by(theater_name,Mission_Month) %>% summarise(Tons = sum(total_tons)) %>% mutate(TonsK = Tons/1000)
+
+ggplot(data=tonsByTheaterTime, aes(x=Mission_Month,y=TonsK, color=theater_name)) +
+  geom_line(aes(group = theater_name))+
+  geom_point()+
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  scale_fill_brewer(palette="Paired") + 
+  ggtitle("Distribution of Explosives by Theater over Time") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom") +
+  labs(y = "Tons of Explosives (in Thousands)")
+```
+
+##Other Questions
+
+11. As expected in ETO operations, Germany was the target country with the largest number of bombing missions. However, according to the PTO data, the Philippines was the target country with the largest number of bombing missions. Japan, an Axis opponent, had been the recipient of less than half of that of the Philippines. Why?
+
+```{r Philippines-Data, eval=TRUE,fig.width = 10, fig.height = 7}
+PhilippinesDF <- tableWW2PTO[tableWW2PTO$tgt_country == "Philippine Islands",]
+PbombingTimeline <- PhilippinesDF %>% group_by(Mission_Month) %>% summarise(Missions = n())
+
+ggplot(PbombingTimeline, aes(x = Mission_Month, y = Missions)) + 
+  geom_bar(stat = "identity", position = "dodge", fill = "red") + 
+  #geom_text(aes(label=Missions), vjust=-0.5, color="black", position = position_dodge(0.9), size=3.5) +
+  scale_fill_brewer(palette="Paired") + 
+  theme(axis.text.x=element_text(angle = 90, vjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Timeline of WW II Aerial Bombings - Philippines") +
+  labs(x = "Year-Months")
+
+```
+
+12. Mass Bomb dates (bombings greater than 500) for ETO are 12/24/1944, 3/24/1945, 3/22/1945, and 6/6/1944. Why? Notice that Pre-Day bombardment dates are not Mass Bomb dates. Why?
+
+```{r MassBombingDatesETO, eval=TRUE,fig.width = 10, fig.height = 7}
+ETOclean<-tableWW2ETO[(tableWW2ETO$msndate == "1944-12-24" | tableWW2ETO$msndate == "1945-03-24" | tableWW2ETO$msndate == "1945-03-22" | tableWW2ETO$msndate == "1944-06-06"),]
+ETOclean<-ETOclean[complete.cases(ETOclean),]
+
+wm<-map_data("world")
+sites<-data.frame(lat=ETOclean$latitude,long=ETOclean$longitude, stringsAsFactors = FALSE)
+EuropeM<-ggplot() + geom_polygon(data = wm, aes(x=long, y = lat, group = group), fill = NA, color = "black") + coord_fixed(1.3)
+EuropeM<-EuropeM+xlim(-7,30)+ylim(40,55)
+
+BombDate1224<-subset(ETOclean,str_detect(ETOclean$msndate,"1944-12-24"))
+BombDate0324<-subset(ETOclean,str_detect(ETOclean$msndate,"1945-03-24"))
+BombDate0322<-subset(ETOclean,str_detect(ETOclean$msndate,"1945-03-22"))
+BombDate0606<-subset(ETOclean,str_detect(ETOclean$msndate,"1944-06-06"))
+EuropeM+geom_point(data=BombDate1224,aes(longitude,latitude),color="red",size=4)+
+  geom_point(data=BombDate0324,aes(longitude,latitude),color="blue",size=4)+
+  geom_point(data=BombDate0322,aes(longitude,latitude),color="orange",size=4)+
+  geom_point(data=BombDate0606,aes(longitude,latitude),color="purple",size=4)
+
+```
+
+
+13. Mass Bomb dates (bombings greater than 111) for PTO are 6/21, 5/13, 6/4, 3/13, 2/14, and 4/25 1945. Notice that the number of bombing missions for these dates are 1/4 the number than that of the ETO. Also, all mass bomb dates occurred in 1945. Why?
+
+```{r MassBombingDatesPTO, eval=TRUE,fig.width = 10, fig.height = 7}
+PTOclean<-tableWW2PTO[(tableWW2PTO$msndate == "1945-06-21" | tableWW2PTO$msndate == "1945-05-13" | tableWW2PTO$msndate == "1945-06-04" | tableWW2PTO$msndate == "1945-03-13" | tableWW2PTO$msndate == "1945-02-14" | tableWW2PTO$msndate == "1945-04-25"),]
+PTOclean<-PTOclean[complete.cases(PTOclean),]
+
+wm2<-map_data("world")
+sites<-data.frame(lat=PTOclean$latitude,long=PTOclean$longitude, stringsAsFactors = FALSE)
+PacificM<-ggplot() + geom_polygon(data = wm2, aes(x=long, y = lat, group = group), fill = NA, color = "black") + coord_fixed(1.3)
+PacificM<-PacificM+xlim(105,150)+ylim(-10,40)
+
+BombDate0621<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-06-21"))
+BombDate0513<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-05-13"))
+BombDate0604<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-06-04"))
+BombDate0313<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-03-13"))
+BombDate0214<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-02-14"))
+BombDate0425<-subset(PTOclean,str_detect(PTOclean$msndate,"1945-04-25"))
+PacificM+geom_point(data=BombDate0621,aes(longitude,latitude),color="red",size=4)+
+  geom_point(data=BombDate0513,aes(longitude,latitude),color="blue",size=4)+
+  geom_point(data=BombDate0604,aes(longitude,latitude),color="orange",size=4)+
+  geom_point(data=BombDate0313,aes(longitude,latitude),color="purple",size=4)+
+  geom_point(data=BombDate0214,aes(longitude,latitude),color="brown",size=4)+
+  geom_point(data=BombDate0425,aes(longitude,latitude),color="green",size=4)
+```
