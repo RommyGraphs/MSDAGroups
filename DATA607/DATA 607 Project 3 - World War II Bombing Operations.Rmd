@@ -17,6 +17,48 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Project Summary
+
+The team composed of Jason Givens-Doyle, Soumya Ghosh, and Romerl Elizes was formed at the start of the semester. After a week of individual research, the team decided to invest its time in the World War 2 Allied Bombing data found in Data.World. We held a weekly meeting since inception to make sure all goals and issues were satisfied in a timely manner. Because Jason lives in Japan, it was best if we all collaborated using Google Hangout as our primary communication tool. In the end, Soumya became the project manager and database guru, Jason was our maps expert, and Romerl developed relevant questions and analyzed them using the variety of R-tools. Romerl also developed the analysis and summary documentation. However, all team members corrected each others work as needed in order to bring this project out to its successful conclusion. 
+
+**Which are the most valued data science skills?** Each of the individual team members come from different backgrounds and experiences. Each team member has his own individual strengths. As a team, the team members performed with elan. The team learned to trust each other and give generous input on what should be done for next week. Soumya and Jason all wanted to accomplish more tasks for each week, but Romerl wanted to make sure that the group objectives were completed in a timely manner before the deadline. The team imposed deadlines on itself and that helped keep the project moving at a sustainable pace. The team is fortunate in that it had no personality issues or concerns and accomplished much from its inception. The team joked around in the beginning of the team meetings, but got down to the business of accomplishing its objectives. The team exhibited some excellent soft skills that are quite important not only in a data science team environment, but for any project team:
+
+- **Trust in One Another.** This is a very important characteristic. If not for trust, then the team could not accomplish what it can do given the current deadline.
+
+- **Listen to One Another.** The open feedback between team members was quite important. Not one individual dominated the conversation. Each team member contributed a solution that would be beneficial to the team and the project.
+
+- **Capitalize on Each Other's Strengths.** A team member finds some way to do something, why not use it for our own indvidual activities? It definitely acknowledges that team member's contributions but implementing it also gives the other team members new tools to work with in our data science journey.
+
+- **Have Fun.** This project was certainly fun. It was not a burden to develop a project solution. Each team member was happy to contribute something and to learn something new from his other team members.
+
+A snapshot of our activities are listed below:
+
+- **Week 1 - 9/2/2018.** Exploratory independent research to find out what data to use. Prepare individual findings for the group to discuss.
+- **Week 2 - 9/9/2018.** Determined that the WW2 Allied Bombing data would be the primary data source for the team. Identified research questions to ask about the data.
+- **Week 3 - 9/16/2018.** Soumya implemented the SQL scripts to upload the data to the team members' own MySQL databases. Jason demonstrated interesting mapping output based on the bomb data. Romerl developed some questions that the data could perhaps answer.
+- **Week 4 - 9/23/2018.** Souyma, Jason, and Romerl continued to implement their own findings with the data.
+- **Week 5 - 9/30/2018.** Souyma, Jason, and Romerl continued to implement their own findings with the data.
+- **Week 6 - 10/7/2018.** Finalize outstanding tasks. Souyma continues to do final research on the project.  Jason would incorporate Map findings into final RMD document. Romerl will develop the preface, analysis, and summary documentation for the RMD files. All team members develop Individual Presentation Videos of 2 minutes each.
+- **Week 7 - 10/14/2018.** Final touch-ups on project deliverables. Romerl merged all videos into one Master Video.
+- **Week 8 - 10/21/2018.** Submit project deliverables and all components.
+
+The RMD document will begin by showing how the data was uploaded into a MySQL database and how it could easily be queried from that point forward. This section will also give step-by-step instructions on how to upload the data onto a MySQL database and how to generate a DSN connection to the database vis Microsoft ODBC DSN. Next, some verification steps were executed to verify that the data can be queried easily, placed in data frames, and displayed using kable. Data Cleansing operations were executed to make the data useful for answering questions. The focus on this Project will be on the European and Pacific Theaters of Operations. However, some summary questions can be asked about the whole data set and this will be addressed. Using our combined knowledge of data cleansing, kable, tidy, dplyr, mapping technologies, etc. we developed some innovate answers to the following queries:
+
+- Display a graph summarizing the Theaters of Operations
+- Identifying the Target Countries by Mapping
+- Display a graph showing the Top 10 Countries by Total Allied Bombing Missions
+- Display a graph showing the Top 10 Countries by Total Bombing Tonnage
+- Display a graph showing the Timeline of Aerial Bombing Operations by Total Allied Bombing Missions
+- Data separation and cleansing of European (ETO) and Pacific (PTO) Theaters of Operations
+- Display a graph showing the allocation of bombers used in ETO and PTO
+- Display a graph showing the allocation of bombing tonnage used in ETO and PTO
+- Display a graph showing Top 10 ETO Countries based on bombing tonnage
+- Display a graph showing Top 10 PTO Countries based on bombing tonnage
+- Display a graphs showing disperson of target countries for ETO and PTO by Total Allied Bombing Missions
+- Display a line chart showing distribution of Explosives by Theater over Time
+- Find out why the Philippines, an Allied country, not Japan, an Axis country, was the recipient of the most bombings in the PTO
+- Display a map showing mass bombings (greater than 500) during particular dates in the ETO
+- Display a map showing mass bombings (greater than 111) during particular dates in the PTO
 
 ### Data Title: World War II Theater History of Operations (THOR) Data
 ### Source: Data.World 
@@ -118,7 +160,7 @@ head(tableWW2, n=100) %>% kable() %>% kable_styling(bootstrap_options = c("strip
 2.  Focus on selective fields useful for further analysis by removing highly sparsed columns:
 
 
-```{r cleandataframe, eval=TRUE}
+```{r cleandataframe, eval=TRUE, message=FALSE, warning=FALSE}
 tableWW2 <- tableWW2[, -which(names(tableWW2) %in% c("tgt_country_code","tgt_id","tgt_industry_code","source_latitude","source_longitude","mds","takeoff_latitude","takeoff_longitude","target_comment","mission_comments","source","database_edit_comments", "bda", "callsign", "rounds_ammo", "spares_return_ac","wx_fail_ac", "mech_fail_ac", "misc_fail_ac", "time_over_target","sighting_method_code","sighting_explanation"))]
 
 ### Replace BLANK theater values with NA
@@ -145,7 +187,7 @@ tableWW2$tgt_location <- str_to_title(tableWW2$tgt_location)
 
 European (ETO), Pacific(PTO) and Mediterranean(MTO) are the major theaters where aerial bombing operations were conducted. We have decided to focus on two primary theaters of operations ETO and PTO for further analysis.
 
-```{r ThorSummary, fig.width = 10, fig.height = 6}
+```{r ThorSummary, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 theaterSummary <- tableWW2 %>% filter(theater != '') %>% group_by(theater_name) %>% summarise(Missions = n())
 
 ggplot(theaterSummary, aes(x = reorder(theater_name, Missions),y= Missions/sum(Missions))) +
@@ -161,7 +203,7 @@ ggplot(theaterSummary, aes(x = reorder(theater_name, Missions),y= Missions/sum(M
 
 4.  Target Countries of WW II Aerial Bombing Operations -
 
-```{r GlobalMissionDistribution, fig.width = 10, fig.height = 4 }
+```{r GlobalMissionDistribution, fig.width = 10, fig.height = 4, message=FALSE, warning=FALSE }
 WorldData <- map_data('world')
 WorldData %>% filter(region != "Antarctica") -> WorldData
 WorldData <- fortify(WorldData)
@@ -187,7 +229,7 @@ ggplot() +
 
 5.  Top 10 Countries on no. aerial bombing operations
 
-```{r Top10Missions, fig.width = 8, fig.height = 6}
+```{r Top10Missions, fig.width = 8, fig.height = 6, message=FALSE, warning=FALSE}
 topCountries <- sites %>% group_by(tgt_country) %>% summarise(Missions = sum(Missions)) %>% mutate(rank = rank(-Missions)) %>% filter(rank <= 10) %>% arrange(rank)
 
 ggplot(topCountries, aes(x = reorder(tgt_country,-Missions), y = Missions)) + 
@@ -204,7 +246,7 @@ ggplot(topCountries, aes(x = reorder(tgt_country,-Missions), y = Missions)) +
 
 6.  Top 10 Countries based on no. total tons of explosives dropped:
 
-```{r Top10ExposiveTons, fig.width = 8, fig.height = 6}
+```{r Top10ExposiveTons, fig.width = 8, fig.height = 6, message=FALSE, warning=FALSE}
 topCountries <- sites %>% group_by(tgt_country) %>% summarise(Tons = sum(Tons)) %>% mutate(rank = rank(-Tons)) %>% filter(rank <= 10) %>% arrange(rank)
 
 ggplot(topCountries, aes(x = reorder(tgt_country,-Tons), y = Tons)) + 
@@ -220,7 +262,7 @@ ggplot(topCountries, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
 
 7.  Timeline of Aerial Bombing Operations:
 
-```{r BombingTimeline, fig.width = 10, fig.height = 6}
+```{r BombingTimeline, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 bomibngTimeline <- tableWW2 %>% group_by(Mission_Month) %>% summarise(Missions = n())
 
 ggplot(bomibngTimeline, aes(x = Mission_Month, y = Missions)) + 
@@ -240,18 +282,18 @@ We wanted to focus our analysis towards the two most important theaters of actio
 
 8.  Separating data frame into two theaters: European and Pacific
 
-```{r separatingdataframe, eval=TRUE}
+```{r separatingdataframe, eval=TRUE, message=FALSE, warning=FALSE}
 tableWW2ETO <- subset(tableWW2, theater == "ETO")
 tableWW2PTO <- subset(tableWW2, theater == "PTO")
 ```
 
 #### 8-A. Summmary for ETO Data Frame
-```{r summarizedataframeETO, eval=TRUE}
+```{r summarizedataframeETO, eval=TRUE, message=FALSE, warning=FALSE}
 summary(tableWW2ETO)
 ```
 
 #### 8-B. Summmary for PTO Data Frame
-```{r summarizedataframePTO, eval=TRUE}
+```{r summarizedataframePTO, eval=TRUE, message=FALSE, warning=FALSE}
 summary(tableWW2PTO)
 ```
 
@@ -261,7 +303,7 @@ summary(tableWW2PTO)
 
 **European Theater:**
 
-```{r aircraftdistributionETO, eval=TRUE, fig.width = 10, fig.height = 7}
+```{r aircraftdistributionETO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 ETOAircrafttype <- as.data.frame(table(tableWW2ETO$aircraft_name))
 names(ETOAircrafttype) <- c("Aircraft", "Count")
 ETOAircrafttype <- ETOAircrafttype[-which(ETOAircrafttype$Count == 0 ), ] # removing rows with 0 fields 
@@ -277,7 +319,7 @@ ggplot(ETOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) +
 
 **Pacific Theater:**
 
-```{r aircraftdistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7}
+```{r aircraftdistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 PTOAircrafttype <- as.data.frame(table(tableWW2PTO$aircraft_name))
 names(PTOAircrafttype) <- c("Aircraft", "Count")
 PTOAircrafttype <- PTOAircrafttype[-which(PTOAircrafttype$Count == 0 ), ] # removing rows with 0 fields 
@@ -295,7 +337,7 @@ ggplot(PTOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) +
 
 **European Theater:**
 
-```{r tonsexplosivescountrydistributionETO, eval=TRUE,fig.width = 10, fig.height = 7}
+```{r tonsexplosivescountrydistributionETO, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 
 #ETOExplosives <- tableWW2ETO[, which(names(tableWW2ETO) %in% c("tgt_country","total_tons"))]
 #ETOExplosives <- ETOExplosives[!(is.na(ETOExplosives$total_tons) | ETOExplosives$total_tons==""), ]
@@ -316,7 +358,7 @@ ggplot(tonsByCountriesETO, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
 ```
 **Pacific Theater:**
 
-```{r tonsexplosivescountrydistributionPTO, eval=TRUE,fig.width = 10, fig.height = 7}
+```{r tonsexplosivescountrydistributionPTO, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 tonsByCountriesPTO <- tableWW2 %>% filter(theater == 'PTO') %>% group_by(tgt_country) %>% summarise(Tons = sum(total_tons))  %>% mutate(rank = rank(-Tons)) %>% filter(rank <= 10) %>% arrange(rank)
 
 ggplot(tonsByCountriesPTO, aes(x = reorder(tgt_country,-Tons), y = Tons)) + 
@@ -334,7 +376,7 @@ ggplot(tonsByCountriesPTO, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
 
 **European Theater:**
 
-```{r targetcountrydistributionETO, eval=TRUE, fig.width = 10, fig.height = 7}
+```{r targetcountrydistributionETO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 ETOTCountry <- as.data.frame(table(tableWW2ETO$tgt_country))
 names(ETOTCountry) <- c("Country", "Missions")
 #ETOTCountry <- ETOTCountry[-which(ETOTCountry$Missions == 0 ), ] # removing rows with 0 fields 
@@ -350,7 +392,7 @@ ggplot(ETOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) +
 
 **Pacific Theater:**
 
-```{r targetcountrydistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7}
+```{r targetcountrydistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 PTOTCountry <- as.data.frame(table(tableWW2PTO$tgt_country))
 names(PTOTCountry) <- c("Country", "Missions")
 PTOTCountry <- PTOTCountry[-which(PTOTCountry$Missions <= 10 ), ] # removing rows with 0 fields 
@@ -368,7 +410,7 @@ ggplot(PTOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) +
 
 **European Theater:**
 
-```{r tonsExplosivesOverTime, eval=TRUE,fig.width = 10, fig.height = 10}
+```{r tonsExplosivesOverTime, eval=TRUE,fig.width = 10, fig.height = 10, message=FALSE, warning=FALSE}
 
 tonsByTheaterTime <- tableWW2 %>% group_by(theater_name,Mission_Month) %>% summarise(Tons = sum(total_tons)) %>% mutate(TonsK = Tons/1000)
 
@@ -386,7 +428,7 @@ ggplot(data=tonsByTheaterTime, aes(x=Mission_Month,y=TonsK, color=theater_name))
 
 11. As expected in ETO operations, Germany was the target country with the largest number of bombing missions. However, according to the PTO data, the Philippines was the target country with the largest number of bombing missions. Japan, an Axis opponent, had been the recipient of less than half of that of the Philippines. Why?
 
-```{r Philippines-Data, eval=TRUE,fig.width = 10, fig.height = 7}
+```{r Philippines-Data, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 PhilippinesDF <- tableWW2PTO[tableWW2PTO$tgt_country == "Philippine Islands",]
 PbombingTimeline <- PhilippinesDF %>% group_by(Mission_Month) %>% summarise(Missions = n())
 
@@ -403,7 +445,7 @@ ggplot(PbombingTimeline, aes(x = Mission_Month, y = Missions)) +
 
 12. Mass Bomb dates (bombings greater than 500) for ETO are 12/24/1944, 3/24/1945, 3/22/1945, and 6/6/1944. Why? Notice that Pre-Day bombardment dates are not Mass Bomb dates. Why?
 
-```{r MassBombingDatesETO, eval=TRUE,fig.width = 10, fig.height = 7}
+```{r MassBombingDatesETO, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 ETOclean<-tableWW2ETO[(tableWW2ETO$msndate == "1944-12-24" | tableWW2ETO$msndate == "1945-03-24" | tableWW2ETO$msndate == "1945-03-22" | tableWW2ETO$msndate == "1944-06-06"),]
 ETOclean<-ETOclean[complete.cases(ETOclean),]
 
@@ -426,7 +468,7 @@ EuropeM+geom_point(data=BombDate1224,aes(longitude,latitude),color="red",size=4)
 
 13. Mass Bomb dates (bombings greater than 111) for PTO are 6/21, 5/13, 6/4, 3/13, 2/14, and 4/25 1945. Notice that the number of bombing missions for these dates are 1/4 the number than that of the ETO. Also, all mass bomb dates occurred in 1945. Why?
 
-```{r MassBombingDatesPTO, eval=TRUE,fig.width = 10, fig.height = 7}
+```{r MassBombingDatesPTO, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
 PTOclean<-tableWW2PTO[(tableWW2PTO$msndate == "1945-06-21" | tableWW2PTO$msndate == "1945-05-13" | tableWW2PTO$msndate == "1945-06-04" | tableWW2PTO$msndate == "1945-03-13" | tableWW2PTO$msndate == "1945-02-14" | tableWW2PTO$msndate == "1945-04-25"),]
 PTOclean<-PTOclean[complete.cases(PTOclean),]
 
