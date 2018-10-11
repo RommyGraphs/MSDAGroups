@@ -181,9 +181,11 @@ tableWW2$tgt_location <- str_to_title(tableWW2$tgt_location)
 
 ```
 
+**Analysis:** The main WW2 data frame extracted from the database contained a lot of information. Because of the limited scope of the project, it was decided that we excluded 22 columns from the data frame. Many of these columns were composed of blank data and some contained data that was not useful for this project. Upon cleaning the data we decided to add additional fields such as theater_name, Mission_Month, and Mission_Year as they would be important for further investigation of the data.
+
 ### Global Summary View of World War II Aerial Bombing Operations
 
-3.  Summerizing the data by Theater of Operations:
+3.  Summarizing the data by Theater of Operations:
 
 European (ETO), Pacific(PTO) and Mediterranean(MTO) are the major theaters where aerial bombing operations were conducted. We have decided to focus on two primary theaters of operations ETO and PTO for further analysis.
 
@@ -200,6 +202,8 @@ ggplot(theaterSummary, aes(x = reorder(theater_name, Missions),y= Missions/sum(M
   labs(x = "Theater of Operations",y = "% of Aerial Missions") +
   coord_flip()
 ```
+
+**Analysis:** It was important to show a summary view of a percentage of total bombing missions by Theater of Operations by showing a horizontal Bar Chart. The graph shows that the European Theater encompasses the most bombing missions at 53.8% as compared to the rest of the theaters. Pacific and Mediterranean Theaters occupy a distant 2nd and 3rd respectively at 20.3% and 17.1%.
 
 4.  Target Countries of WW II Aerial Bombing Operations -
 
@@ -221,11 +225,13 @@ ggplot() +
   scale_fill_continuous(low="thistle2", high="darkred", guide="colorbar") + 
   scale_y_continuous(breaks=c()) + 
   scale_x_continuous(breaks=c()) + 
-  labs(fill="Mission Count", title="Global View of the Aerial Boming Missions", x="", y="") + 
+  labs(fill="Mission Count", title="Global View of the Aerial Bombing Missions", x="", y="") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme_bw() + 
   theme(panel.border = element_blank())
 ```
+
+**Analysis:** From a different perspective, we wanted to show Total Aerial Bombing Missiongs by Target Countries using the ggplot's map technology. The resulting map shows the entire world minus Antarctica and colors the individual countries with a shade of red depending on the severity of the bombing. Based on the map, you can see that Germany has the deepest shade of red indicating that it was the receipt of the most bombings. The map is very informative from this aspect.
 
 5.  Top 10 Countries on no. aerial bombing operations
 
@@ -242,6 +248,8 @@ ggplot(topCountries, aes(x = reorder(tgt_country,-Missions), y = Missions)) +
   labs(x = "Countries")
   
 ```
+
+**Analysis:** Using the data we thus far, we used dplyr to summarize and rank the total number of missions by target country. To avoid clutteriness of the data, we only ranked the top 10 countries by total bombing missions executed against them. We displayed the results on a bar chart. As indicated in the previous map, Germany received more than 60,000 bombing missions and the next 2 countries Italy and France received approximately one-third of those bombing missions.
 
 
 6.  Top 10 Countries based on no. total tons of explosives dropped:
@@ -260,6 +268,8 @@ ggplot(topCountries, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
   
 ```
 
+**Analysis:**  We used dplyr to summarize and rank the total bombing tonnage by target country. To avoid clutteriness of the data, we only ranked the top 10 countries by total bombing tonnage executed against them. We displayed the results on a bar chart. Similar to the previous bar chart, Germany, France, and Italy received the most bombing tonnage. Unliked the previous bar chart, it appears that France received half the bombing tonnage than Germany. France may have less than one-third of bombing missions than that of Germany, it still received half the bombing tonnage than that of Germany.
+
 7.  Timeline of Aerial Bombing Operations:
 
 ```{r BombingTimeline, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
@@ -275,6 +285,8 @@ ggplot(bomibngTimeline, aes(x = Mission_Month, y = Missions)) +
   labs(x = "Year-Months")
   
 ```
+
+**Analysis:** Using dplyr to group the mission months for all WW2 missions, we developed a Bar-based timeline chart that shows the total number of bombs by month from the beginning to the end of World War 2. A dramatic increase in bombing missions starts on October 1943 and reaches its first maximum point in June 1944 and reaches its highest maximum point in April 1945. June 1944 could be an obvious choice as Allied Bombings increased substantially prior to D-Day, June 6, 1944, the Allied invasion of France. Moreover, several bombing missions were executed after D-Day to support the Allied breakout of the Normandy invasion area. April 1945 could be associated with the Allied bombing of major infrastructures in Germany. By this time, the Allied armies are in Germany ready to finish off its opponent. What is interesting to note by observing this chart, that bombing missions still occurred after World War 2 ended in September 1945. Observe some Allied bombings occurring in December 1945.
 
 ### European Vs. Pacific Theaters of Operations:
 
@@ -317,6 +329,9 @@ ggplot(ETOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) +
   labs(x = "Aircraft Type")
 ```
 
+**Analysis:** Using the ETO data frame, we wanted to find out the Number of Allied of Missions by Bomber Type. This was useful because it showed what was the dominating aircraft used in the ETO missions. Based on the bar chart, we see that the United States of America had a large share of the bombing missions if you just look at the aircraft type alone. The top 3 mission counts by Aircraft Type are B17, B24, and B26 respectively and these aircraft types are American. 
+
+
 **Pacific Theater:**
 
 ```{r aircraftdistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
@@ -332,6 +347,8 @@ ggplot(PTOAircrafttype, aes(x = reorder(Aircraft, -Count), y = Count)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   labs(x = "Aircraft Type")
 ```
+
+**Analysis:** Using the PTO data frame, we wanted to find out the Number of Allied of Missions by Bomber Type. This was useful because it showed what was the dominating aircraft used in the ETO missions. Based on the bar chart, we see that the United States of America had a monopoly of missions in the PTO. The majority of aircraft types in the PTO is American-made.
 
 ### 9-B.What are the allocation of tons of explosives of target countries in ETO and PTO?
 
@@ -356,6 +373,9 @@ ggplot(tonsByCountriesETO, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
   labs(x = "Countries", y = "Tons of Explosives")
 
 ```
+
+**Analysis:** We used dplyr to summarize and rank the total bombing tonnage by target country for ETO only. To avoid clutteriness of the data, we only ranked the top 10 countries by total bombing tonnage executed against them. We displayed the results on a bar chart. Now things get interesting here. In the previous chart showing all total bombing tonnage by target countries, Germany, France, and Italy occupy the top 3 slots. However, in this chart, Germany, France, and Austira occupy the top 3 slots. What happened to Italy? Italy is in Europe. It turns out that the authors of the WW2 bombing data put Italy in the Mediterranean Theater of Operations (MTO). This certainly skews the data somewhat.
+
 **Pacific Theater:**
 
 ```{r tonsexplosivescountrydistributionPTO, eval=TRUE,fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
@@ -371,6 +391,8 @@ ggplot(tonsByCountriesPTO, aes(x = reorder(tgt_country,-Tons), y = Tons)) +
   ggtitle("Top 10 Countries in PTO based on Total Tons of Explosives Dropped") +
   labs(x = "Countries", y = "Tons of Explosives")
 ```
+
+**Analysis:** We used dplyr to summarize and rank the total bombing tonnage by target country for PTO only. To avoid clutteriness of the data, we only ranked the top 10 countries by total bombing tonnage executed against them. We displayed the results on a bar chart. As expected, Japan, an Axis country, is the receipient of the most bombing tonnage at 183,752. However, the Philippines, an Allied country occupied by Japan, is the recipient of the second most bombing tonnage at 62,679. Why is that? We will explain this later as we drill down to the Philippines.
 
 ### 9-C. What is the dispersion of target countries for either ETO and PTO?
 
@@ -390,6 +412,8 @@ ggplot(ETOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) +
   labs(x = "Target Countries")
 ```
 
+**Analysis:** We used dplyr to summarize and rank the total bombing missions by target country for ETO only. We displayed the results on a bar chart. Now things get interesting here. In the previous chart showing all total bombing missions by target countries, Germany, France, and Italy occupy the top 3 slots. However, in this chart, Germany, France, and Austira occupy the top 3 slots. What happened to Italy? Italy is in Europe. It turns out that the authors of the WW2 bombing data put Italy in the Mediterranean Theater of Operations (MTO). This certainly skews the data somewhat.
+
 **Pacific Theater:**
 
 ```{r targetcountrydistributionPTO, eval=TRUE, fig.width = 10, fig.height = 7, message=FALSE, warning=FALSE}
@@ -406,9 +430,11 @@ ggplot(PTOTCountry, aes(x = reorder(Country, -Missions), y = Missions)) +
   labs(x = "Target Countries") 
 ```
 
-10. Does bombing tonnage increase for a specific period and what theater?
+**Analysis:** We used dplyr to summarize and rank the total bombing missions by target country for PTO only. We displayed the results on a bar chart. We expected Japan, an Axis country, to be the receipient of the most bombing missions. However, Japan is ranked 5. The Philippines is ranked 1st with the most bombing missions at 8180. Interesting: in terms of bombing tonnage, Japan ranks higher than the Philippines, but in terms of bombing missions, the Philippines ranks higher than Japan.
 
-**European Theater:**
+10. Does bombing tonnage increase for a specific period and for what theater?
+
+**All Theaters:**
 
 ```{r tonsExplosivesOverTime, eval=TRUE,fig.width = 10, fig.height = 10, message=FALSE, warning=FALSE}
 
@@ -424,7 +450,9 @@ ggplot(data=tonsByTheaterTime, aes(x=Mission_Month,y=TonsK, color=theater_name))
   labs(y = "Tons of Explosives (in Thousands)")
 ```
 
-##Other Questions
+**Analysis:** We used dplyr to summarize and rank the total bombing tonnage by month for all theaters. We displayed the results on a line chart. Based on the observations, we see that ETO bombing tonnage starts to become higher than all other theaters in March 1943. However, from November 1943 to April 1945, ETO bombing tonnage grows from less than 50,000 tons to greater than 300,000 tons. This certainly correlates with a step-up in Allied intervention in the ETO during that time period. The PTO bombing tonnage only starts to increase in November 1944 to its peak in August 1945. The PTO bombing tonnage for that time period went from approximately 6,000 tons to 60,000 tons. The PTO tonnage is substantially smaller than the ETO tonnage. Only the MTO bombing tonnage can compete with that of the PTO bombing tonnage. The MTO bombing tonnage has two peaks, one in May 1944 and the other in April 1945. Both periods had approximately 50,000 tons. 
+
+### Other Questions
 
 11. As expected in ETO operations, Germany was the target country with the largest number of bombing missions. However, according to the PTO data, the Philippines was the target country with the largest number of bombing missions. Japan, an Axis opponent, had been the recipient of less than half of that of the Philippines. Why?
 
@@ -442,6 +470,8 @@ ggplot(PbombingTimeline, aes(x = Mission_Month, y = Missions)) +
   labs(x = "Year-Months")
 
 ```
+
+**Analysis:** In this analysis, we wanted to focus exclusively in the Philippines. The Philippines has a greater number of bombing missions than that of Japan, an Axis country. We wanted to find out why. The best way to analyze this was to divide the total bombing missions by mission month. By using dplyr to sort the Philippine data by mission month, we could plot the results on a bar chart and see how and why the Philippines was the receipient of more bombing missions than Japan. We see in the timeline, the number of bombing missions starts to increase substantially starting on October 1944 and peaks for three consecutive months (March to May 1945). By looking at a list of battles in the Philippines during that time period, the uptick in bombing missions coincided with the preprations for the invasion of the Philippines by the United States. The Philippines was a territory of the United States and it was occupied by Japan at the beginning of the war. Wikipedia lists 15 battles in the Philippines from October 1944 and May 1945. During this time period, the United States successfully invaded and occupied the Philippines. Based on this observation, it could be concluded that Allied bombing precede or support a battle or raid. We will analyze this more when we show a map of bombings on specific dates.
 
 12. Mass Bomb dates (bombings greater than 500) for ETO are 12/24/1944, 3/24/1945, 3/22/1945, and 6/6/1944. Why? Notice that Pre-Day bombardment dates are not Mass Bomb dates. Why?
 
@@ -465,6 +495,13 @@ EuropeM+geom_point(data=BombDate1224,aes(longitude,latitude),color="red",size=4)
 
 ```
 
+**Analysis:** On our initial summary of the WW2 bombing data, there were some interesting points in the data. It was found that during specific dates in the ETO: 6/6/1944, 12/24/1944, 3/22/1945, and 3/24/1945, there were greater than 500 bombing missions occurring on each of those dates. We wanted to find out why and where the bombings occuring during those dates. By subsetting the data to only include those dates, we wanted to include them in a map and find out their locations. We colored each date a specific color and found some interesting results:
+
+- **6/6/1944:** Highlighted by the color purple, the majority of data points are at the Normandy area of France. 6/6/1944 is also famously known as D-Day, the Allied Invasion of France. The two other data points is in Eastern France and Belgium respectively. I believe the German 15th Army was located in Belgium at the time and the bombing point was close to the French city of Calais where the Germans believed the Allies would invade. A bombing run on that area would force the Germans to think the D-Day invasion would occur in that area. However, the several bombing points in the Normandy area seem to indicate an imminent invasion. If I were the German High Command, I would have focused on Normandy instead of Belgium based on the bombing data map.
+- **12/24/1944:** Highlighted by the color red, the data points encompass one in southwest France, one in Poland, one in Luxembourg, and several in Germany [LIS]. What is intresting to note is the grid-like pattern bombing in the German area particulary in Southwest Germany.
+- **3/22/1945:** Highlighted by the color orange, the data points encompass several in Germany, Austria, and Czechoslovkia. What is intresting to note is the grid-like pattern bombing in these areas.
+- **3/24/1945:** Highlighted by the color blue, the data points encompass several in Germany and one in the Netherlands. Holland was not officially liberated until May 5, 1945, therefore, Allied bombing missions could still have been against German positions in the Netherlands [NET]. What is intresting to note is the grid-like pattern bombing in these areas.
+
 
 13. Mass Bomb dates (bombings greater than 111) for PTO are 6/21, 5/13, 6/4, 3/13, 2/14, and 4/25 1945. Notice that the number of bombing missions for these dates are 1/4 the number than that of the ETO. Also, all mass bomb dates occurred in 1945. Why?
 
@@ -487,6 +524,28 @@ PacificM+geom_point(data=BombDate0621,aes(longitude,latitude),color="red",size=4
   geom_point(data=BombDate0513,aes(longitude,latitude),color="blue",size=4)+
   geom_point(data=BombDate0604,aes(longitude,latitude),color="orange",size=4)+
   geom_point(data=BombDate0313,aes(longitude,latitude),color="purple",size=4)+
-  geom_point(data=BombDate0214,aes(longitude,latitude),color="brown",size=4)+
+  geom_point(data=BombDate0214,aes(longitude,latitude),color="yellow",size=4)+
   geom_point(data=BombDate0425,aes(longitude,latitude),color="green",size=4)
 ```
+
+**Analysis:** On our initial summary of the WW2 bombing data, there were some interesting points in the data. It was found that during specific dates in the PTO: 2/14/1945, 3/13/1945, 4/25/1945, 5/13/1945, 6/4/1945, and 6/21/1945, there were greater than 111 bombing missions occurring on each of those dates. We wanted to find out why and where the bombings occuring during those dates. By subsetting the data to only include those dates, we wanted to include them in a map and find out their locations. We colored each date a specific color and found some interesting results.
+
+- **2/14/1945:** Highlighted by the color yellow, the data points encompass several bombings in Japan, Philippines, and other places. This date is not significant but during that period, the United States was in the Battle of Manila and attempting to occupy the rest of the Philippines [MIL]. Japan was the receipient of several bombings by the United States during this period.
+- **3/13/1945:** Highlighted by the color purple, the data points encompass bombings in Taiwan, one in Japan, and other places. What is significant about the one in Japan, is that 274 US bombers leveled Osaka on this date [BOM]. Literature review does not indicate why Taiwan received special attention on this date.
+- **4/25/1945:** Highlighted by the color green, the data points encompass several bombings in the Philippines and Japan, and other places.  Japan was the receipient of several bombings by the United States during this period.There are a lot of bombing points in the main Philippine island of Luzon, but the literature review does not find indicate why Luzon received special attention on this date.
+- **5/13/1945:** Highlighted by the color blue, the data points encompass bombings in the Philippines, Vietnam, and other places. While there is no relevant information based on literature review why Vietname received special attention on this date, Japan did take over this area in March [FRE]. Perhaps the Japanese occupation of the area invited subsequent bombings by the Allies.
+- **6/4/1945:** Highlighted by the color orange, the data points encompass bombings in the Philippines and New Guinea. Several battles in the Philippines were being fought by the United States during that period.
+- **6/21/1945:** Highlighted by the color red, the data points encompass bombings in several places in the PTO with no specific concentratoins.
+
+### References
+
+**[BOM] Bombing of Tokyo and Other Cities.** Retrieved from website: https://ww2db.com/battle_spec.php?battle_id=217
+
+**[FRE] French Indochina in World War II.** Retried from website: https://en.wikipedia.org/wiki/French_Indochina_in_World_War_II
+
+**[LIS] List of Air Operations during the Battle of Europe.** Retrieved from website: https://en.wikipedia.org/wiki/List_of_air_operations_during_the_Battle_of_Europe
+
+**[MIL] Military History of the Philippines during World War II.** Retrieved from website: https://en.wikipedia.org/wiki/Military_history_of_the_Philippines_during_World_War_II
+
+**[NET] Netherlands in World War II.** Retrieved from website: https://en.wikipedia.org/wiki/Netherlands_in_World_War_II#Liberation
+
