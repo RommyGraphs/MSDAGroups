@@ -1,10 +1,10 @@
-The Team for Project 3 consists of Souyma Ghosh, Jason Givens-Doyle, and Romerl Elizes have submitted the following deliverable links for Project 3:
+Team Aero Bombers of Project 3 consisting of Souyma Ghosh, Jason Givens-Doyle, and Romerl Elizes have submitted the following deliverable links for Project 3:
 
 Rpubs Link: http://rpubs.com/RommyGraphs/430684
 
 Master RMD File: https://github.com/RommyGraphs/MSDAGroups/blob/master/DATA607/DATA%20607%20Project%203%20-%20World%20War%20II%20Bombing%20Operations.Rmd
 
-Video Link: 
+Video Link: https://raw.githubusercontent.com/RommyGraphs/MSDAGroups/master/DATA607/TeamAeroBombersPresentation.mp4
 
 DDL Script: https://raw.githubusercontent.com/RommyGraphs/MSDAGroups/master/DATA607/SQL%20Scripts/ww2analysis_DDL%20Script.sql
 
