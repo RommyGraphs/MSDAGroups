@@ -1,0 +1,317 @@
+### Breast Cancer Data ####
+
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/breast.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Breast' where patientType is null;
+
+
+### Colrect Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/colrect.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Colrect' where patientType is null;
+
+### Digothr Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/digothr.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Digothr' where patientType is null;
+
+
+### femgen Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/femgen.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Femgen' where patientType is null;
+
+### Lymyleuk Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/lymyleuk.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Lymyleuk' where patientType is null;
+
+### Malegen Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/malegen.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Malegen' where patientType is null;
+
+### Other Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/other.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Other' where patientType is null;
+
+### Respir Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/respir.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Respir' where patientType is null;
+
+### urinary Cancer Data ####
+LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/urinary.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
+personID, 
+locality, 
+maritalStatus, 
+race, 
+derivedHispanicOrigin, 
+sex, 
+@ageDiagnosis, 
+@birthYear, 
+@sequenceNumber, 
+@monthDiagnosis, 
+@yearDiagnosis, 
+primarySite, 
+laterality, 
+histology, 
+behavior, 
+histologicType, 
+behaviorCode, 
+grade, 
+diagnosticConfirmation,
+reportingSourceType,
+@survivalMonths) 
+SET 
+ageDiagnosis = IF(@ageDiagnosis = '',0,@ageDiagnosis),
+birthYear = IF(@birthYear = '',0,@birthYear), 
+sequenceNumber = IF(@sequenceNumber = '',0,@sequenceNumber),
+monthDiagnosis = IF(@monthDiagnosis = '', 0,@monthDiagnosis),
+yearDiagnosis = IF(@yearDiagnosis = '',0,@yearDiagnosis),
+survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
+
+### Update records for Patient Type ###
+
+update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Urinary' where patientType is null;
