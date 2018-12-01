@@ -5,7 +5,7 @@ Use SEERS_Analysis;
 
 ## breast cancer patients ##
 CREATE TABLE IF NOT EXISTS SEERS_Analysis.Cancer_Patients_Master (
-patientType      varchar(50) NULL,
+SEERDiagnosticUnit      varchar(50) NULL,
 personID         integer   NOT NULL,
 locality         varchar(100)   NULL,
 maritalStatus         varchar(100)   NULL,

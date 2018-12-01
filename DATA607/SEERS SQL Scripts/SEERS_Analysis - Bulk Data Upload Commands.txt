@@ -32,7 +32,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Breast' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Breast' where SEERDiagnosticUnit is null;
 
 
 ### Colrect Cancer Data ####
@@ -68,7 +68,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Colrect' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Colrect' where SEERDiagnosticUnit is null;
 
 ### Digothr Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/digothr.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -103,7 +103,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Digothr' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Digothr' where SEERDiagnosticUnit is null;
 
 
 ### femgen Cancer Data ####
@@ -139,7 +139,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Femgen' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Femgen' where SEERDiagnosticUnit is null;
 
 ### Lymyleuk Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/lymyleuk.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -174,7 +174,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Lymyleuk' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Lymyleuk' where SEERDiagnosticUnit is null;
 
 ### Malegen Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/malegen.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -209,7 +209,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Malegen' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Malegen' where SEERDiagnosticUnit is null;
 
 ### Other Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/other.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -244,7 +244,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Other' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Other' where SEERDiagnosticUnit is null;
 
 ### Respir Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/respir.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -279,7 +279,7 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Respir' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Respir' where SEERDiagnosticUnit is null;
 
 ### urinary Cancer Data ####
 LOAD DATA INFILE 'C:/CUNY/Semester1 (Fall)/DATA 607/Final Project/SEERData/urinary.csv' INTO TABLE Cancer_Patients_Master CHARACTER SET utf8 FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (
@@ -314,4 +314,4 @@ survivalMonths = IF(@survivalMonths = '',0,@survivalMonths);
 
 ### Update records for Patient Type ###
 
-update SEERS_Analysis.Cancer_Patients_Master set patientType = 'Urinary' where patientType is null;
+update SEERS_Analysis.Cancer_Patients_Master set SEERDiagnosticUnit = 'Urinary' where SEERDiagnosticUnit is null;
