@@ -13,6 +13,12 @@ output:
   pdf_document: default
 ---
 
+### Part II - Storing Data in MongoDB -  Summary
+
+
+Before we decided on where to store the data, I created a script that stored that data in MongoDB. This is important because we wanted to make sure that we could store the data in a suitable database infrastructure.
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -35,6 +41,10 @@ library(ggrepel) #not using this at the moment, but it does give the option to a
 ```
 
 
+### A. Connecting to the Database
+
+First we have to connect to an existing Mongo database. It is assumed that the mongo database is already running on the machine and is ready to accept connections. We have to drop all the tables prior to loading the data again to make sure that the data we are storing is clean and there are no duplicates.
+
 ```{r connect-to-mongodatabase, eval=TRUE}
 mbreast <- mongo("breast")
 mdigothr <- mongo("digothr")
@@ -46,16 +56,20 @@ mcolrect <- mongo("colrect")
 mlymyleuk <- mongo("lymyleuk")
 murinary <- mongo("urinary")
 
-#mbreast$drop()
-#mdigothr$drop()
-#mmalegen$drop()
-#mfemgen$drop()
-#mother$drop()
-#mrespir$drop()
-#mcolrect$drop()
-#mlymyleuk$drop()
-#murinary$drop()
+mbreast$drop()
+mdigothr$drop()
+mmalegen$drop()
+mfemgen$drop()
+mother$drop()
+mrespir$drop()
+mcolrect$drop()
+mlymyleuk$drop()
+murinary$drop()
 ```
+
+### B. Storing CSV Data into Mongo Database
+
+This was a pretty straightforward set of commands. The process repeats itself for all parsed SEER Cancer data. For each CSV file, we opened it and stored the data in its appropriate collection.
 
 ```{r work2}
 # Open up each CSV file and store in mongodb

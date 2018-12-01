@@ -1,0 +1,158 @@
+---
+title: "DATA 607 Final Project - MongoDB Statistical Analysis 2 - Local Area Comparisons"
+author: "Jason Givens-Doyle, Romerl Elizes & Soumya Ghosh"
+date: "December 12, 2018"
+output: 
+  html_document: 
+    toc: true
+    df_print: kable
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+  #  code_folding:hide
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+library(RODBC)
+library(mongolite)
+library(knitr)
+library(psych)
+library(kableExtra)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(ggplot2)
+library(plotly)
+library(maps)
+library(mapdata)
+library(ggrepel) #not using this at the moment, but it does give the option to add labels.  While not useful for the 
+
+options(knitr.table.format = "html")
+```
+
+
+```{r connect-to-mongodatabase, eval=TRUE}
+mrespir <- mongo("respir")
+```
+
+```{r store-data-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+respirDF <- mrespir$find(
+  query = '{"yearDiagnosis" : { "$lt" : 2001 }, "survivalMonths" : { "$lt" : 9999 } }', 
+  fields = '{ "locality" : true, "ageDiagnosis" : true, "yearDiagnosis" : true, "survivalMonths" : true, "_id" : false }')
+respirDF <- na.omit(respirDF)
+nrow(respirDF)
+respirDF <- mutate(respirDF,survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis)
+respirDF <- respirDF[ which(respirDF$currentYear < 2016), ]
+
+ruralGeorgiaDF <- respirDF[ which(respirDF$locality == "Rural Georgia"), ]
+iowaDF <- respirDF[ which(respirDF$locality == "Iowa"), ]
+seattleDF <- respirDF[ which(respirDF$locality == "Seattle"), ]
+atlantaDF <- respirDF[ which(respirDF$locality == "Atlanta"), ]
+```
+
+```{r project_functions, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+plot_ss <- function(x, y, maintitle, showSquares = FALSE, leastSquares = FALSE){
+  plot(x,y,xlab="Diagnosis Year", ylab = "Survival Years", main = maintitle)
+
+  if(leastSquares){
+    m1 <- lm(y~x)
+    y.hat <- m1$fit
+  } else{
+    pt1 <- locator(1)
+    points(pt1$x, pt1$y, pch = 4)
+    pt2 <- locator(1)
+    points(pt2$x, pt2$y, pch = 4)
+    pts <- data.frame("x" = c(pt1$x, pt2$x),"y" = c(pt1$y, pt2$y))
+    m1 <- lm(y ~ x, data = pts)
+    y.hat <- predict(m1, newdata = data.frame(x))
+  }
+  r <- y - y.hat
+  abline(m1)
+
+  oSide <- x - r
+  LLim <- par()$usr[1]
+  RLim <- par()$usr[2]
+  oSide[oSide < LLim | oSide > RLim] <- c(x + r)[oSide < LLim | oSide > RLim] # move boxes to avoid margins
+
+  n <- length(y.hat)
+  for(i in 1:n){
+    lines(rep(x[i], 2), c(y[i], y.hat[i]), lty = 2, col = "blue")
+    if(showSquares){
+    lines(rep(oSide[i], 2), c(y[i], y.hat[i]), lty = 3, col = "orange")
+    lines(c(oSide[i], x[i]), rep(y.hat[i],2), lty = 3, col = "orange")
+    lines(c(oSide[i], x[i]), rep(y[i],2), lty = 3, col = "orange")
+    }
+  }
+
+}
+
+summaryTable <- function(cancerType,maintitle = ""){
+  survivalYears = cancerType$survivalYears
+  yearDiagnosis = cancerType$yearDiagnosis
+  meanTable <- tapply(survivalYears,yearDiagnosis,mean)
+  show(nrow(cancerType))
+  show(describeBy(survivalYears, group = yearDiagnosis, mat=TRUE))
+  barplot(meanTable,beside=T,col=c("#ee7700","#3333ff")
+    ,main=maintitle,xlab="Diagnosis Year",ylab="Survival Years")
+}
+
+
+inferenceTests <- function(cancerType, maintitle = "") {
+  yearDiagnosis <- cancerType$yearDiagnosis
+  survivalYears <- cancerType$survivalYears
+  plot_ss(x = yearDiagnosis, y = survivalYears, maintitle, showSquares = FALSE)
+  m2 <- lm(survivalYears ~ yearDiagnosis, data = cancerType)
+  summary(m2)
+}
+
+inferenceTest0 <- function(cancerType) {
+  m2 <- lm(survivalYears ~ yearDiagnosis, data = cancerType)
+  hist(m2$residuals)
+  qqnorm(m2$residuals)
+  qqline(m2$residuals)  
+}
+```
+
+```{r respir-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(respirDF,"Respiratory Cancer - All Localities - Diagnosis Year vs. Average Survival Years")
+```
+```{r respir-Statistics1,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(ruralGeorgiaDF,"Respiratory Cancer - Rural Georgia - Diagnosis Year vs. Average Survival Years")
+```
+```{r respir-Statistics2,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(iowaDF,"Respiratory Cancer - Iowa - Diagnosis Year vs. Average Survival Years")
+```
+```{r respir-Statistics3,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(seattleDF,"Respiratory Cancer - Seattle - Diagnosis Year vs. Average Survival Years")
+```
+```{r respir-Statistics4,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(atlantaDF,"Respiratory Cancer - Atlanta - Diagnosis Year vs. Average Survival Years")
+```
+
+
+```{r RespiratoryCancer-InferenceTest, echo=TRUE}
+inferenceTests(respirDF, "Respiratory Cancer - All Localities - Inference Analysis")
+```
+
+```{r RespiratoryCancer-InferenceTest1, echo=TRUE}
+inferenceTests(ruralGeorgiaDF, "Respiratory Cancer - Rural Georgia - Inference Analysis")
+```
+
+```{r RespiratoryCancer-InferenceTest2, echo=TRUE}
+inferenceTests(iowaDF, "Respiratory Cancer - Iowa - Inference Analysis")
+```
+
+```{r RespiratoryCancer-InferenceTest3, echo=TRUE}
+inferenceTests(seattleDF, "Respiratory Cancer - Seattle - Inference Analysis")
+```
+
+```{r RespiratoryCancer-InferenceTest4, echo=TRUE}
+inferenceTests(atlantaDF, "Respiratory Cancer - Atlanta - Inference Analysis")
+```

@@ -50,7 +50,7 @@ murinary <- mongo("urinary")
 
 ```
 
-```{r test1}
+```{r test1, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 breastDF <- mbreast$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 breastDF %>% 
@@ -59,7 +59,7 @@ breastDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test2}
+```{r test2, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 digothrDF <- mdigothr$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 digothrDF %>% 
@@ -68,7 +68,7 @@ digothrDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test3}
+```{r test3, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 malegenDF <- mmalegen$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 malegenDF %>% 
@@ -77,7 +77,7 @@ malegenDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test4}
+```{r test4, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 femgenDF <- mfemgen$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 femgenDF %>% 
@@ -86,7 +86,7 @@ femgenDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test5}
+```{r test5, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 otherDF <- mother$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 otherDF %>% 
@@ -95,7 +95,7 @@ otherDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test6}
+```{r test6, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 respirDF <- mrespir$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 respirDF %>% 
@@ -104,7 +104,7 @@ respirDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test7}
+```{r test7, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 colrectDF <- mcolrect$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 colrectDF %>% 
@@ -113,7 +113,7 @@ colrectDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test8}
+```{r test8, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 lymyleukDF <- mlymyleuk$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 lymyleukDF %>% 
@@ -122,7 +122,7 @@ lymyleukDF %>%
   scroll_box(width="100%",height="300px")
 ```
 
-```{r test9}
+```{r test9, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 # Perform Test Queries for each Table
 urinaryDF <- murinary$find( query = '{"race" : "White", "birthYear" : { "$gt" : 1960 } }', fields = '{}', limit = 25 )
 urinaryDF %>% 
