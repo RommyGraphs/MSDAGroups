@@ -26,7 +26,7 @@ ol > li {
     background:rgba(49, 126, 172, 0.1);
 }
 ol > li:before {
-    content:"Step " counter(li); /* Use the counter as content */
+    content:"Exercise " counter(li); /* Use the counter as content */
     counter-increment:li; /* Increment the counter by 1 */
     /* Position and style the number */
     position:absolute;

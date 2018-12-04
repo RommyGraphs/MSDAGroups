@@ -1,0 +1,268 @@
+---
+title: "DATA 607 Final Project - Cancer Reserach Analysis"
+author: "Jason Givens-Doyle, Romerl Elizes & Soumya Ghosh"
+date: "December 2, 2018"
+output: 
+  html_document: 
+    toc: true
+    df_print: kable
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+  #  code_folding:hide
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Project Description: 
+
+
+### Project Goal: 
+
+
+### Data Sources
+
+
+### R Libraries:
+
+Load necessary libraries -
+```{r message=FALSE, warning=FALSE}
+library(RODBC)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(plotly)
+library(kableExtra)
+library(data.table)
+library(knitr)
+library(psych)
+library(tidyr)
+library(scales)
+library(maps)
+library(mapdata)
+```
+
+Below are the steps followed to perform database migration -
+
+1. Establish MySQL DB Connection:
+
+I have used RODBC package and an ODBC data source called 'MySQL_SEERS_Analysis' in order to connect to the database and retrieve tables into respective data frames.
+
+```{r connect-MySQLDB}
+
+con <- odbcConnect("MySQL_SEERS_Analysis")
+```
+
+### Data Sets:
+
+#### A. SEERS Cancer Patients Master (USA Only):
+
+```{r store-data-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+
+seerMasterDF <- as.data.frame(sqlFetch(con,"Cancer_Patients_Master"),stringsAsFactors = FALSE)
+
+### Derive Year attributes 
+seerMasterDF <- seerMasterDF %>% mutate(survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis) %>% subset(currentYear < 2016 & birthYear > 1979 & ageDiagnosis > 19 & survivalMonths < 9999)
+
+head(seerMasterDF) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+### Create individual data frames based on cancer types
+
+breastDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Breast")
+digothrDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Digothr")
+malegenDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Malegen")
+femgenDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Femgen")
+respirDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Respir")
+colrectDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Colrect")
+lymyleukDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Lymyleuk")
+urinaryDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Urinary")
+otherDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Other")
+
+
+```
+
+#### B. CI5 Global Cancer Patients Data:
+
+```{r store-ci5-data-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+
+Query <- "SELECT 
+reg.Continent, 
+reg.Country,
+diag.DiagUnitLvl1Desc,
+diag.DiagUnitLvl0Desc,
+diag.SEERDiagnosticUnit,
+diag.SEERDiagnosticUnitDesc,
+can.Year,
+can.AgeGroup,
+can.Sex,
+sum(can.TotalCases) as CancerCases
+FROM
+ SEERS_Analysis.cancer_cases_details as can
+INNER JOIN
+ SEERS_Analysis.cancer_registry_master as reg
+ ON can.CancerRegistryID = reg.CancerRegistryID
+INNER JOIN
+ diagnostic_units_master as diag
+ ON can.CancerCode = diag.CancerCode
+GROUP BY
+ reg.Continent, 
+ reg.Country,
+ diag.DiagUnitLvl1Desc,
+ diag.DiagUnitLvl0Desc,
+ diag.SEERDiagnosticUnit,
+ diag.SEERDiagnosticUnitDesc,
+ can.Year,
+ can.AgeGroup,
+ can.Sex"
+
+CI5MasterDF <- sqlQuery(con,Query)
+
+### Derive Year attributes 
+#seerMasterDF <- seerMasterDF %>% mutate(survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis) %>% #subset(currentYear < 2016 & birthYear > 1979 & ageDiagnosis > 19 & survivalMonths < 9999)
+
+head(CI5MasterDF) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+
+### Project Function Definitions 
+
+```{r project_functions, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+
+plot_ss <- function(x, y, maintitle, showSquares = FALSE, leastSquares = FALSE){
+  plot(x,y,xlab="Diagnosis Year", ylab = "Survival Years", main = maintitle)
+
+  if(leastSquares){
+    m1 <- lm(y~x)
+    y.hat <- m1$fit
+  } else{
+    pt1 <- locator(1)
+    points(pt1$x, pt1$y, pch = 4)
+    pt2 <- locator(1)
+    points(pt2$x, pt2$y, pch = 4)
+    pts <- data.frame("x" = c(pt1$x, pt2$x),"y" = c(pt1$y, pt2$y))
+    m1 <- lm(y ~ x, data = pts)
+    y.hat <- predict(m1, newdata = data.frame(x))
+  }
+  r <- y - y.hat
+  abline(m1)
+
+  oSide <- x - r
+  LLim <- par()$usr[1]
+  RLim <- par()$usr[2]
+  oSide[oSide < LLim | oSide > RLim] <- c(x + r)[oSide < LLim | oSide > RLim] # move boxes to avoid margins
+
+  n <- length(y.hat)
+  for(i in 1:n){
+    lines(rep(x[i], 2), c(y[i], y.hat[i]), lty = 2, col = "blue")
+    if(showSquares){
+    lines(rep(oSide[i], 2), c(y[i], y.hat[i]), lty = 3, col = "orange")
+    lines(c(oSide[i], x[i]), rep(y.hat[i],2), lty = 3, col = "orange")
+    lines(c(oSide[i], x[i]), rep(y[i],2), lty = 3, col = "orange")
+    }
+  }
+
+}
+
+summaryTable <- function(cancerType,maintitle = " test"){
+  survivalYears = cancerType$survivalYears
+  yearDiagnosis = cancerType$yearDiagnosis
+  meanTable <- tapply(survivalYears,yearDiagnosis,mean)
+  show(nrow(cancerType))
+  show(describeBy(survivalYears, group = yearDiagnosis, mat=TRUE))
+  barplot(meanTable,beside=T,col=c("#ee7700","#3333ff")
+    ,main=maintitle,xlab="Diagnosis Year",ylab="Survival Years")
+}
+
+
+inferenceTests <- function(cancerType, maintitle = "") {
+  yearDiagnosis <- cancerType$yearDiagnosis
+  survivalYears <- cancerType$survivalYears
+  plot_ss(x = yearDiagnosis, y = survivalYears, maintitle, showSquares = FALSE)
+  m2 <- lm(survivalYears ~ yearDiagnosis, data = cancerType)
+  summary(m2)
+}
+
+inferenceTest0 <- function(cancerType) {
+  m2 <- lm(survivalYears ~ yearDiagnosis, data = cancerType)
+  hist(m2$residuals)
+  qqnorm(m2$residuals)
+  qqline(m2$residuals)  
+}
+```
+
+
+#### SEERS Data Summary By Cancer Diagnostic Type:
+
+```{r breast-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(breastDF,"Breast Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r digothr-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(digothrDF,"Digestive Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r malegen-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(malegenDF,"Male Genital Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r femgen-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(femgenDF,"Female Genital Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r respir-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(respirDF,"Respiratory Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r colrect-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(colrectDF,"Colon/Rectum Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r lymyleuk-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(lymyleukDF,"Lymphoma/Leukemia Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r urinary-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(urinaryDF,"Urinary Cancer - Diagnosis Year vs. Average Survival Years")
+```
+
+```{r other-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(otherDF,"Other Cancers - Diagnosis Year vs. Average Survival Years")
+```
+
+#### SEERS Data Statistical Inference Analysis:
+
+```{r BreastCancer-InferenceTest, echo=TRUE}
+inferenceTests(breastDF, "Breast Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is no evidence that Breast Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Breast Cancer Survival Years are improving as Diagnosis Year increases.
+
+```{r DigestiveCancer-InferenceTest, echo=TRUE}
+inferenceTests(digothrDF, "Digestive Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is no evidence that Digestive Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Digestive Cancer Survival Years are improving as Diagnosis Year increases.
+
+```{r Male Genital Cancer-InferenceTest, echo=TRUE}
+inferenceTests(malegenDF, "Male Genital Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is no evidence that Male Genital Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Male Genital Cancer Survival Years are improving as Diagnosis Year increases.
+
+```{r Female Genital Cancer-InferenceTest, echo=TRUE}
+inferenceTests(femgenDF, "Female Genital Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is no evidence that Female Genital Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Female Genital Cancer Survival Years are improving as Diagnosis Year increases.
