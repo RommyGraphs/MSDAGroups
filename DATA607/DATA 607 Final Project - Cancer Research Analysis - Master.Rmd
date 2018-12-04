@@ -1,10 +1,14 @@
 ---
-title: "DATA 607 Final Project - Cancer Reserach Analysis"
+title: "DATA 607 Final Project - Cancer Research Analysis"
 author: "Jason Givens-Doyle, Romerl Elizes & Soumya Ghosh"
 date: "December 2, 2018"
 output: 
   html_document: 
     toc: true
+    toc_float:
+      collapsed: false
+    toc_depth: 4
+    number_sections: true
     df_print: kable
     theme: cerulean
     highlight: pygments
@@ -15,20 +19,61 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(knitr.table.format = "html")
 ```
 
-### Project Description: 
+# Project Summary
+
+The Final Project for Team Cancer Researchers (Formally Team Aero Bombers) focused on analyzing Cancer Data downloaded from the Surveillance, Epidemmiology, and End Results Program (SEER) of the National Cancer Institute (NCI) of the National Institute of Health (NIH) website [SEE] and the Cancer Incidence in Five Continents (CI5) collaboration of the World Health Organization: International Agency for Research on Cancer website [CI5]. Team Cancer Researchers was composed of Jason Givens-Doyle, Romerl Elizes, and Soumya Ghosh.
+
+## Team Responsibilities
+
+Team responsibilities for the Project were:
+
+**Rom (Romerl)** - initially downloaded the SEERS data, cleaned the SEERS data and stored them into CSV files, investigated alternative database with MongoDB, performed detailed statistical analysis as required by the project, and developed comprehensive documentation on the master RMD file.
+
+**Soumya** - developed the MySQL database for the project using the CSV files Romerl recreated, developed the test queries,
+
+**Jason** - developed the initial idea for researching cancer data. Identified the two data sources that will be used in the project,
 
 
-### Project Goal: 
+## Project Goals
+
+The initial project goals based on the submitted project proposal were:
+
+- Define a prediction model to determine the likelihood of certain cancers.
+
+- Work on subsetting the data, looking a subgroups within the identified risk groups and drilling down for more specific risks and indicators.
+
+- Using the characteristics of the data, statistically determine cancer survivability by cancer type by diagnosis year.
+
+## Project Caveats and Difficulties
+
+Some of the project caveats and difficulties were highlighted here.
+
+- Obtaining the SEER data was a time consuming process. It required each of the team members to request access via NIH guidelines. While access to the data was pretty straightforward for some, it was difficult to obtain for one our teammates.
+
+- Downloading the SEER data was the easy part. The data while comprehensive was stored in text files that had to be cleaned and parsed properly in order for it to in a readable format such that R could properly clean the data. Even then, the SEER data once downloaded had over 10,050,814 rows of data!
+
+- Due to the vastness of the SEER, for the purposes of the investigation, we focused only on cancer patients who were diganosed with cancer prior to 1999. This represents 25 years worth of data and and only accounts for 2,788,863 rows of data.
+
+- Our team membership is truly an online collaboration. Jason lives in Japan, Souyma lives in Connecticut, and Rom lives in New Jersey. Team discussions, development, and collaboration was a purely online endeavor. The Thanksgiving holiday affected one of our team meeetings and made the project meet-ups challenging.
 
 
-### Data Sources
+## Room for Improvements
 
+This project certainly has some room for improvement and can be used for other future research opportunities.
 
-### R Libraries:
+- The statistical analysis only focused on two data variables in the SEER data. Due to time constraints, it was not realistically feasible to explore the other variables for more detailed analysis. We extracted 22 columns worth of SEERS data, but the statistical analysis on the two variables was still exhaustive. Exploration of the other columns would be a worthy endeavor.
 
-Load necessary libraries -
+- A more detailed analysis could be investigated for some of the individual cancer types and do a comparison between regions. However, due to time constraints and team discussion, it was best to focus on the data from a global perspective. In a future project opportunity, other students could focus on investigating a particular cancer type(s) and do comparisons between the regions in the United States.
+
+# Defining and Installing the Datasets for the Project
+
+This section will focus on downloading the data sets from the SEER and CI5 websites. It will focus
+
+Loading necessary libraries
+
 ```{r message=FALSE, warning=FALSE}
 library(RODBC)
 library(dplyr)
@@ -43,31 +88,56 @@ library(tidyr)
 library(scales)
 library(maps)
 library(mapdata)
+
 ```
+
+## Downloading Data from SEERS Data Repository
+
+The SEERS was downloaded into a directory and was separated by text files. Each text file represented Cancer type and contained over 100 fields each by a particular region and time period in the United States. The text files extracted represented the following Cancer Types: Breast, Digestive, Male Genital, Female Genital, Respiratory, Colon/Rectal, Lymphoma/Leukemia, Urinary, and Other Cancers. Each column was and values were divided by specified space positions in the text files. R data cleaning procedures were used to extract the data values from each field space position and rename them based on the provided data dictionary. All of the text files representing a specific cancer type were merged together using the R data cleaning procedures and converted into 1 CSV file. As a result, there was one CSV file for each cancer type. A link to the initial R work can be found here: http://rpubs.com/RommyGraphs/442626
+
+
+## Downloading Data from CI5 Data Repository
+
+
+## Investigating Alternative databases
+
+Before we decided to exclusively use the MySQL database for the Final Project, Rom investigated the possibility of using the Mongo database as a possible database for the Final Project. Some of the initial work can be found here:
+
+- Storing the CSV files into data frames that could easily be stored in MongoDB Collections - http://rpubs.com/RommyGraphs/444545
+
+- Defining an Initial Statistical Analysis from a Global Perspective on the SEER Data in MongoDB - http://rpubs.com/RommyGraphs/444519
+
+- Defining an Initial Statistical Analysis from a Detailed Perspective on Respirator Cancer by Region on the SEER Data in MongoDB - http://rpubs.com/RommyGraphs/444533
+
+In the end, due to time constraints and team familiarity with the MySQL database technology, we decided to use the MySQL database for the project.
+
+## Establishing MySQL Infrastructure
+
+### Importing the Modified SEERS Data from the CSV Files
 
 Below are the steps followed to perform database migration -
 
-1. Establish MySQL DB Connection:
+#### Establish MySQL DB Connection:
 
-I have used RODBC package and an ODBC data source called 'MySQL_SEERS_Analysis' in order to connect to the database and retrieve tables into respective data frames.
+We used the RODBC package and an ODBC data source called 'MySQL_SEERS_Analysis' in order to connect to the database and retrieve tables into their respective data frames.
 
 ```{r connect-MySQLDB}
-
 con <- odbcConnect("MySQL_SEERS_Analysis")
 ```
 
-### Data Sets:
+#### SEERS Cancer Patients Master (USA Only) - Placing in Data Frames and Performing Test Query
 
-#### A. SEERS Cancer Patients Master (USA Only):
+The SEERS data was queried straight from the established SQL database.  A data frame was created using the following limiting criteria - patient who was diagnosed prior to 1999. A sample table display was created to verify that the data  could be shown. The data frame was further divided into data frames representing their cancer types. These data frames will be used in the Statistical Analysis portion of the project.
 
 ```{r store-data-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 
 seerMasterDF <- as.data.frame(sqlFetch(con,"Cancer_Patients_Master"),stringsAsFactors = FALSE)
 
 ### Derive Year attributes 
-seerMasterDF <- seerMasterDF %>% mutate(survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis) %>% subset(currentYear < 2016 & birthYear > 1979 & ageDiagnosis > 19 & survivalMonths < 9999)
+seerMasterDF <- seerMasterDF %>% mutate(survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis) %>% subset(yearDiagnosis < 1999 & survivalMonths < 9999)
 
-head(seerMasterDF) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+tmpseerMasterDF <- head(seerMasterDF)
+tmpseerMasterDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ### Create individual data frames based on cancer types
 
@@ -80,11 +150,11 @@ colrectDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Colrect")
 lymyleukDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Lymyleuk")
 urinaryDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Urinary")
 otherDF <- seerMasterDF %>% subset(SEERDiagnosticUnit == "Other")
-
-
 ```
 
-#### B. CI5 Global Cancer Patients Data:
+#### B. CI5 Global Cancer Patients Data - Placing in Data Frames and Performing Test Query
+
+The CI5 data was queried straight from the established SQL database. An SQL query was performed using JOINs and GROUP BY and its results were displayed in a Kable to verify that the data could be queried.
 
 ```{r store-ci5-data-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 
@@ -123,15 +193,46 @@ CI5MasterDF <- sqlQuery(con,Query)
 ### Derive Year attributes 
 #seerMasterDF <- seerMasterDF %>% mutate(survivalYears = survivalMonths/12, currentYear = survivalYears + yearDiagnosis) %>% #subset(currentYear < 2016 & birthYear > 1979 & ageDiagnosis > 19 & survivalMonths < 9999)
 
-head(CI5MasterDF) %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+tmpCI5MasterDF <- head(CI5MasterDF)
+tmpCI5MasterDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
+# Statistical Analysis of SEERS Dataset
 
-### Project Function Definitions 
+The research question being investigated from a statistical standpoint is that can we determine cancer survivability in years by cancer type by diagnosis year. 
 
-```{r project_functions, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+## Objectives of Statistical Analysis
 
+The research investigation from a purely statistical standpoint will determine if there is a correlation between the survivability in years (year of diagnosis + years alive after diagnosis) and the diagnosis year. Why should we care? It is implied that the innovations in cancer research and mitigation should help improve years of survivability of cancer patients. The investigation hopes to establish this correlation if any. Each cancer type will be investigated and will be performed using traditional summary statistic and inference analysis investigation.
+
+### Data Collection
+
+The data was collected by the SEER dataset. The data will only cover patients were diagnosed with cancer prior to 2001. It is implied that cancer research has certainly improved over the years, therefore, we could see an improvement in survivability over time.
+
+### Cases
+
+Each case represents a cancer patient diagnosed from 1973 to 1999. There are 2,788,863 observations in the given data sets.
+
+### Variables
+
+The response variable is survival years and is numerical.
+
+The explanatory variable is the diagnosis year and is numerical.
+
+### Type of Study
+
+This an observational study as I am using data that has been extracted from the SEER dataset. The dataset represent rows of actual cancer patients.
+
+## Defining the Functions needed for the Statistical Analysis
+
+It is important to define the functions needed to perform the statistical analysis. The functions defined here were developed and used by Rom during his previous semester's work in the course, DATA 606 Statistics Probability for Data Analytics.
+
+### plot_ss function
+
+plot_ss is a helpful function for Inference Testings that visually shows the linear regression line and dots representing the individual instances of all dat for each diagnosis year investigated. the function also shows where the data is bunched up or sparsely placed for each diagnosis year. 
+
+```{r project_function1, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 plot_ss <- function(x, y, maintitle, showSquares = FALSE, leastSquares = FALSE){
   plot(x,y,xlab="Diagnosis Year", ylab = "Survival Years", main = maintitle)
 
@@ -166,7 +267,13 @@ plot_ss <- function(x, y, maintitle, showSquares = FALSE, leastSquares = FALSE){
   }
 
 }
+```
 
+### summaryTable function
+
+The function shows the mean survivability in years for each year of diagnosis. It will show a detailed description of the data and then show a bar chart showing the relationship.
+
+```{r project_function2, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable <- function(cancerType,maintitle = " test"){
   survivalYears = cancerType$survivalYears
   yearDiagnosis = cancerType$yearDiagnosis
@@ -176,8 +283,13 @@ summaryTable <- function(cancerType,maintitle = " test"){
   barplot(meanTable,beside=T,col=c("#ee7700","#3333ff")
     ,main=maintitle,xlab="Diagnosis Year",ylab="Survival Years")
 }
+```
 
+### inferenceTests function
 
+The inferenceTests function shows the inference test for the two variables investigated and statistically determines using the lm function if the data being displayed is statistically valid. The lm function will display the p-value for the data and that will determine if the data shows cause to reject the Null Hypothesis. If we fail to reject the Null Hypothesis then there is evidence that there is no correlation between diagnosis year and survivability in years. However, if the p-value indicates (less than 0.05) that we can reject the Null Hypothesis then there is evidence that there is a correlation between diagnosis year and survivability in years.
+
+```{r project_function3, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTests <- function(cancerType, maintitle = "") {
   yearDiagnosis <- cancerType$yearDiagnosis
   survivalYears <- cancerType$survivalYears
@@ -186,6 +298,13 @@ inferenceTests <- function(cancerType, maintitle = "") {
   summary(m2)
 }
 
+```
+
+### inferenceTest0 function
+
+inferenceTest0 is a useful function and it must be executed before we do any inference analysis. This test determines if the data being investigated is valid for inference analysis.
+
+```{r project_function4, display=TRUE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTest0 <- function(cancerType) {
   m2 <- lm(survivalYears ~ yearDiagnosis, data = cancerType)
   hist(m2$residuals)
@@ -195,74 +314,282 @@ inferenceTest0 <- function(cancerType) {
 ```
 
 
-#### SEERS Data Summary By Cancer Diagnostic Type:
+## SEERS Data Summary By Cancer Diagnostic Type - Exploratory Data Analysis
 
-```{r breast-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+In this section, we will focus on the initial statistical findings for diagnosis year vs. survivability in years for each cancer type. The cancer types are: Breast, Digestive, Male Genital, Female Genital, Respiratory, Colon/Rectal, Lymphoma/Leukemia, Urinary, and Other Cancers. There will be a short discussion about each cancer.
+
+### Breast Cancer Summary Analysis
+```{r breast-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(breastDF,"Breast Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r digothr-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
-summaryTable(digothrDF,"Digestive Cancer - Diagnosis Year vs. Average Survival Years")
+**Observations**
+
+The study encompasses 437,429 breast cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears breast cancer survivability in years is between 12 and 14 years. There is a peak in 1988 and slowly moves in a downward trend to 1998.
+
+### Digestive Cancer Summary Analysis
+
+```{r digothr-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(digothrDF,"Digestive Cancer Summary - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r malegen-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 206,980 digestive cancer cases. The bar chart indicates a slightly upward trend of survivability in years vs. diagnosis year. Based on visual observation, it appears digestive cancer survivability in years is between 1.8 and 2.5 years. There is an upward trend between 1973 and 1998.
+
+
+### Male Genital Cancer Summary Analysis
+
+```{r malegen-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(malegenDF,"Male Genital Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r femgen-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 360,923 male genital cancer cases. The bar chart indicates a slighlty upward trend of survivability in years vs. diagnosis year. Based on visual observation, it appears male genital cancer survivability in years is between 6.5 and 11.8 years. There is an upward trend between 1973 and 1998.
+
+
+### Female Genital Cancer Summary Analysis
+
+```{r femgen-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(femgenDF,"Female Genital Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r respir-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 203,556 female genital cancer cases. The bar chart indicates a slighlty downward trend of survivability in years vs. diagnosis year. Based on visual observation, it appears female genital cancer survivability in years is between 14.7 and 10.6 years. There is an downward trend between 1973 and 1998.
+
+
+### Respiratory Cancer Summary Analysis
+
+```{r respir-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(respirDF,"Respiratory Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r colrect-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
-summaryTable(colrectDF,"Colon/Rectum Cancer - Diagnosis Year vs. Average Survival Years")
+**Observations**
+
+The study encompasses 402,016 respiratory cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears respiratory cancer survivability in years is between 2.5 and 3 years. There is an peaks in 1974, 1978, and 1983. It appears to slowly trend downward after 1985.
+
+### Colon/Rectal Cancer Summary Analysis
+
+```{r colrect-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+summaryTable(colrectDF,"Colon/Rectal Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r lymyleuk-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 354,431 colon/rectal cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears colon/rectal cancer survivability in years is between 7.3 and 8.4 years. There is a peak in 1986. It appears to slowly trend downward after 1986.
+
+
+### Lymphoma/Leukemia Cancer Summary Analysis
+
+```{r lymyleuk-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(lymyleukDF,"Lymphoma/Leukemia Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r urinary-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 220,475 lymphoma/leukemia cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears lymphoma/leukemia cancer survivability in years is between 6.6 and 7.8 years. There is a peak in 1985. It appears to slowly trend downward after 1985.
+
+### Urinary Cancer Summary Analysis
+
+```{r urinary-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(urinaryDF,"Urinary Cancer - Diagnosis Year vs. Average Survival Years")
 ```
 
-```{r other-Statistics,echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+**Observations**
+
+The study encompasses 179,462 urinary cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears urinary cancer survivability in years is between 8.1 and 9.9 years. There is a peak in 1984. It appears to slowly trend downward after 1984.
+
+### Other Cancer Summary Analysis
+
+```{r other-Statistics, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 summaryTable(otherDF,"Other Cancers - Diagnosis Year vs. Average Survival Years")
 ```
 
-#### SEERS Data Statistical Inference Analysis:
+**Observations**
 
-```{r BreastCancer-InferenceTest, echo=TRUE}
+The study encompasses 381,735 other cancer cases. The bar chart indicates a uniform trend of survivability in years vs. diagnosis year. Based on visual observation, it appears other cancer survivability in years is between 9.2 and 10.9 years. There is a peak in 1985. It appears to slowly trend downward after 1985.
+
+
+### Exploratory Data Analysis Summary
+
+Based on the initial summary analysis, there is definitely room for more investigation of the Cancer Data. 
+
+- There is an upward trend in survivability in years for digestive and male genital cancer diagnoses.
+
+- There is a downward trend in survivability in years for female genital cancer diagnoses. 
+
+- There is a slight downward trend in survivability in years for respiratory cancer diagnoses.
+
+- All other cancer diagnoses show a uniform trend in the 25 year period, however, there is slight downward trends after a peak year to 1998.
+
+These summary statistics alone indicate that more investigation may be needed to why certain trends occur. For example, as a scientist, I would be concerned about the downward trends considering that supposedly cancer research and mitigation techniques have improved. In terms of survivability years going up for digestive and male genital cancer diagnoses, why are they improving. Are the mitigation processes different and therefore more successful? Are there better medical personnel to handle these particular cases? For a further research project, these would be useful sub-projects to consider.
+
+## SEERS Data Statistical Inference Analysis
+
+Despite what the Exploratory Data Analysis exposed on the Cancer types in terms of survivability in years vs. diagnosis year, inference tests will need to be conducted to verify that the data being investigated is actually sound. 
+
+Linear Regression will be the chosen algorithm for inference test calculations. By conducting the linear regression tests, it clearly shows the data trends for each cancer type and shows whether diagnosis year clearly affects survivability in years. 
+
+Prior to executing all inference tests, a test will be conducted that verify that the data meets the criteria for inference. After each linear regression test for each cancer type, a Hypothesis Test will be indicated and indicate if there is enough evidence that the data does determine the legitimacy of the survivability in years. Additionally, the yearDiagnosis field representing the Diagnosis Year will be compared with its p-value to determine its validity for predicting the Surviability in Years. p-values for the inference test and coefficient yearDiagnosis must be less than 0.05 in order to be considered valid evidence.
+
+### Preliminary Task - Does the Data Meet criterias for Inference?
+
+```{r All-CriteriaTestTest, echo=FALSE}
+inferenceTest0(seerMasterDF)
+```
+**Linearity.** The data does not show a clear residual trend. However, using the residuals in the Histogram graph, we see that the residuals are between -10 and 30. This is a good indication of linearity in the data by the sloping downward trend from -10 to 30. However, there is concern that the residuals does not show a uniform Bell Curve distribution. CONDITION ACCEPTED WITH RESERVATIONS.
+
+**Nearly normal residuals.** The residuals graph indicated by the Historgram show a downward trend in distribution.  However, there is concern that the residuals does not show a uniform Bell Curve distribution. CONDITION ACCEPTED WITH RESERVATIONS.
+
+**Constant variability.** The variability of points around the least squares line remains
+roughly constant as evidenced by the QQ-Plot. There is skew in both the top-right and bottom-left part of the chart, but there is a clearly a large black line of data converging on the center of the least squares line. CONDITION ACCEPTED.
+
+**Independent observations.** The data was not independently collected. It was collected for identified cancer patients in the SEER database diagnosed from 1973 to 1998. However, 2788,863 observations were collected which increases the likelihood of data independence. The data used is greater than 10% of all SEER data collected. CONDITION ACCEPTED.
+
+The data has satisfied all conditions for linear regression. However, we are concerned about the Bell Curve distribution not being normal.
+
+### Breast Cancer Inference Analysis
+
+```{r BreastCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTests(breastDF, "Breast Cancer - Inference Analysis")
 ```
 
-**${ H }_{ 0 }$:** There is no evidence that Breast Cancer Survival Years are improving as Diagnosis Year increases.
+**${ H }_{ 0 }$:** There is insufficent evidence that Breast Cancer Survival Years are improving as Diagnosis Year increases.
 
 **${ H }_{ A }$:** There is sufficient evidence that Breast Cancer Survival Years are improving as Diagnosis Year increases.
 
-```{r DigestiveCancer-InferenceTest, echo=TRUE}
+The inference test for Breast Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.056 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Digestive Cancer Inference Analysis
+
+```{r DigestiveCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTests(digothrDF, "Digestive Cancer - Inference Analysis")
 ```
 
-**${ H }_{ 0 }$:** There is no evidence that Digestive Cancer Survival Years are improving as Diagnosis Year increases.
+**${ H }_{ 0 }$:** There is insufficient evidence that Digestive Cancer Survival Years are improving as Diagnosis Year increases.
 
 **${ H }_{ A }$:** There is sufficient evidence that Digestive Cancer Survival Years are improving as Diagnosis Year increases.
 
-```{r Male Genital Cancer-InferenceTest, echo=TRUE}
+The inference test for Digestive Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at postive 0.027 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we can reject the Null Hypothesis. 
+
+### Male Genital Cancer Inference Analysis
+
+```{r MaleGenitalCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTests(malegenDF, "Male Genital Cancer - Inference Analysis")
 ```
 
-**${ H }_{ 0 }$:** There is no evidence that Male Genital Cancer Survival Years are improving as Diagnosis Year increases.
+**${ H }_{ 0 }$:** There is insufficient evidence that Male Genital Cancer Survival Years are improving as Diagnosis Year increases.
 
 **${ H }_{ A }$:** There is sufficient evidence that Male Genital Cancer Survival Years are improving as Diagnosis Year increases.
 
-```{r Female Genital Cancer-InferenceTest, echo=TRUE}
+The inference test for Male Genital Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at postive 0.019 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we can reject the Null Hypothesis. 
+
+
+### Female Genital Cancer Inference Analysis
+
+```{r FemaleGenitalCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
 inferenceTests(femgenDF, "Female Genital Cancer - Inference Analysis")
 ```
 
-**${ H }_{ 0 }$:** There is no evidence that Female Genital Cancer Survival Years are improving as Diagnosis Year increases.
+**${ H }_{ 0 }$:** There is insufficient evidence that Female Genital Cancer Survival Years are improving as Diagnosis Year increases.
 
 **${ H }_{ A }$:** There is sufficient evidence that Female Genital Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Female Genital Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.24 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Respiratory Cancer Inference Analysis
+
+```{r RespiratoryCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+inferenceTests(respirDF, "Respiratory Genital Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is insufficient evidence that Respiratory Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Respiratory Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Respiratory Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.24 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Colon/Rectal Cancer Inference Analysis
+
+```{r ColonRectalCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+inferenceTests(colrectDF,"Colon/Rectal Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is insufficient evidence that Colon/Rectal Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Colon/Rectal Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Colon/Rectal Cancer Survivability shows that the p-value for the linear regression is 0.03 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.004 has a p-value of 0.03 which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Lymphoma/Leukemia Cancer Inference Analysis
+
+```{r LymphomaLeiukemiaCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+inferenceTests(lymyleukDF,"Lymphoma/Leukemia Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is insufficient evidence that Lymphoma/Leukemia Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Lymphoma/Leukemia Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Lymphoma/Leukemia Cancer Survivability shows that the p-value for the linear regression is 4.9 * $10^{-8}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.24 has a p-value of 4.9 * $10^{-8}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Urinary Cancer Inference Analysis
+
+```{r UrinaryCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+inferenceTests(urinaryDF,"Urinary Cancer - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is insufficient evidence that Urinary Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Urinary Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Urinary Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.05 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis. 
+
+### Other Cancer Inference Analysis
+
+```{r OtherCancer-InferenceTest, echo=FALSE, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+inferenceTests(otherDF,"Other Cancers - Inference Analysis")
+```
+
+**${ H }_{ 0 }$:** There is insufficient evidence that Other Cancer Survival Years are improving as Diagnosis Year increases.
+
+**${ H }_{ A }$:** There is sufficient evidence that Other Cancer Survival Years are improving as Diagnosis Year increases.
+
+The inference test for Other Cancer Survivability shows that the p-value for the linear regression is 2.2 * $10^{-16}$ 
+which is less than 0.05. After this initial linear regression test, there is enough evidence that the data does determine the legitimacy of the survivability in years. The yearDiagnosis variable at negative 0.07 has a p-value of 2 * $10^{-16}$ which is less than 0.05. The data is valid and we fail reject the Null Hypothesis.
+
+### Inference Analysis Conclusion
+
+Recall the Initial Summary Analysis for the Cancer Data. 
+
+- There is an upward trend in survivability in years for digestive and male genital cancer diagnoses.
+
+- There is a downward trend in survivability in years for female genital cancer diagnoses. 
+
+- There is a slight downward trend in survivability in years for respiratory cancer diagnoses.
+
+- All other cancer diagnoses show a uniform trend in the 25 year period, however, there is slight downward trends after a peak year to 1998.
+
+Based on the inference analysis, the following can be said about the data:
+
+- Through inference testing, there is an upward trend in survivability in years for digestive and male genital cancer diagnoses.
+
+- Through inference testing, there is an slight downward trend in survivability in years for all other cancer diagnoses.
+
+# References
+
+**[CI5] Cancer Incidence in Five Continents (CI5)** - Retrieved from website: http://ci5.iarc.fr/Default.aspx
+
+**[SEE] NCI Surveillance, Epidemiology, and End Results Program (SEER)** - Retrieved from website: https://seer.cancer.gov/
+
+
