@@ -94,3 +94,38 @@ AgeGroup          varchar(20) NULL,
 TotalCases        integer   NULL
 );
 
+## Cancer Population Summary ###
+CREATE TABLE IF NOT EXISTS SEERS_Analysis.Population_Summary (
+CancerRegistryID  integer NOT NULL,
+Year              integer   NULL,
+Sex               varchar(1)   NULL,
+TotalPopulation      integer   NULL,
+Age_0_4           integer   NULL,
+Age_5_9           integer   NULL,
+Age_10_14         integer   NULL,
+Age_15_19         integer   NULL,
+Age_20_24         integer   NULL,
+Age_25_29         integer   NULL,
+Age_30_34         integer   NULL,
+Age_35_39         integer   NULL,
+Age_40_44         integer   NULL,
+Age_45_49         integer   NULL,
+Age_50_54         integer   NULL,
+Age_55_59         integer   NULL,
+Age_60_64         integer   NULL,
+Age_65_69         integer   NULL,
+Age_70_74         integer   NULL,
+Age_75_79         integer   NULL,
+Age_80_84         integer   NULL,
+Age_85Plus        integer   NULL
+);
+
+### Population Details by Age Group 
+
+CREATE TABLE IF NOT EXISTS SEERS_Analysis.Population_Details (
+CancerRegistryID  integer NOT NULL,
+Year              integer   NULL,
+Sex               varchar(1)   NULL,
+AgeGroup          varchar(20) NULL,
+TotalPopulation        integer   NULL
+);
