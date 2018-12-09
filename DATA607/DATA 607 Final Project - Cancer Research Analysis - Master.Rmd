@@ -30,11 +30,11 @@ The Final Project for Team Cancer Researchers (Formally Team Aero Bombers) focus
 
 Team responsibilities for the Project were:
 
-**Rom (Romerl)** - initially downloaded the SEERS data, cleaned the SEERS data and stored them into CSV files, investigated alternative database with MongoDB, performed detailed statistical analysis as required by the project, and developed comprehensive documentation on the master RMD file.
+**Rom (Romerl)** - initially downloaded the SEERS data, cleaned the SEERS data and stored them into CSV files, investigated alternative database with MongoDB, performed detailed statistical analysis as required by the project, developed comprehensive documentation on the master RMD file, and merged/tested RMD file contributions from all teammates. Also, taskmaster for team to get deliverables completed on time.
 
 **Soumya** - developed the MySQL database for the project combining the SEERS (using the CSV files Romerl recreated) and CI5 research databases, creates ETL bulk load scripts to populate the data, developed the data pull queries,
 
-**Jason** - developed the initial idea for researching cancer data. Identified the two data sources that will be used in the project,
+**Jason** - developed the initial idea for researching cancer data. Identified the two data sources that will be used in the project, developed drill downs between two country samples, developed sun burst charts.
 
 
 ## Project Goals
@@ -46,6 +46,45 @@ The initial project goals based on the submitted project proposal were:
 - Work on subsetting the data, looking a subgroups within the identified risk groups and drilling down for more specific risks and indicators.
 
 - Using the characteristics of the data, statistically determine cancer survivability by cancer type by diagnosis year.
+
+The final project objectives have been changed to reflect the realities of the project limitations:
+
+- Download two sources of relevant canced data.
+
+- Statistically analyze the SEER data for validity prior to conducting a more detailed investigation. Specific focus is on the survivability in years vs. diagnosis year for 9 types of cancer in the United States.
+
+- Display a global view of the data using graphs and tables.
+
+- Drill down comparison between two countries with specific cancer indications.
+
+## Rubrics Satisfied
+
+The non-presentation requirements for the project have been satisfied according to the Course Instructors' rubrics requirements.
+
+-	**Proposal describes your motivation for performing this analysis.** - COMPLETED. Satisfied in Section 1.2
+
+-	**Your project has a recognizable "data science workflow," such as the OSEMN workflow or Hadley Wickham's Grammar of Data Science.** - COMPLETED. Satisfied in Section 1.2 Detail.
+
+-	**Project includes data from at least two different types of data sources.** - COMPLETED. Identified in Section 2.1 and 2.2. The SEERS and CI5 Cancer databases were used. Additionally, CSV files with data from other sources were used for this investigation.
+
+-	**Project includes at least one data transformation operation.** - COMPLETED. Extensive data transformation operations were detailed in Section 2.1. The cleaning of SEER data from text file to csv to database are detailed there.  
+
+-	**Project includes at least one statistical analysis and at least one graphics that describes or validates your data.** - COMPLETED. Comprehensive summary statistical analyses were detailed in Section 3.3 when analyzing each of the cancer types of the SEERS database. A summary bar chart was displayed for each summary statistical analysis.
+
+-	**Project includes at least one graphic that supports your conclusion(s).** - COMPLETED. Several graph charts were used to support our conclusions throught the project.
+
+-	**Project includes at least one statistical analysis that supports your conclusion(s).** - COMPLETED. Comprehensive detailed analyses were detailed in Section 3.4 using Linear Regression to support our Inference Analyses.
+
+-	**Project includes at least one feature that we did not cover in class!** - COMPLETED. Project displayed a Pyramid Chart and several Sun Burst charts that were not discussed in this course.
+
+-	**Code and data. Have you delivered the submitted code and data where it is self-contained-preferably in rpubs.com and github? Am I able to fully reproduce your results with what you've delivered? You won't receive full credit if your code references data on your local machine!** - COMPLETED. All code was submitted for the project. The data is at least 10 MB. At this time it was not possible to include this data in the project submission as it required comprehensive cleaning and transformation in order for it to be used in a MySQL database. A One Drive link to the zip file of the SEER Data CSV files (155 MB) can be found here: https://spsmailcuny-my.sharepoint.com/:u:/g/personal/romerl_elizes36_spsmail_cuny_edu/EV6WbISZr-dCmGWuYzj7rKYBou-6sr3h0AJ1A48Fxb0sbQ?e=8hn68u. 
+
+-	**Code and data. Does all of the delivered code run without errors?** - COMPLETED. All code ran without errors.
+
+-	**Code and data. Have you delivered your code and conclusions using a "reproducible research" tool such as RMarkdown?** - COMPLETED. 
+
+-	**Deadline management. Were your draft project proposal, project, and presentation delivered on time?** - COMPLETED. 
+
 
 ## Project Caveats and Difficulties
 
