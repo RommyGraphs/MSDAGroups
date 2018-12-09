@@ -32,7 +32,7 @@ Team responsibilities for the Project were:
 
 **Rom (Romerl)** - initially downloaded the SEERS data, cleaned the SEERS data and stored them into CSV files, investigated alternative database with MongoDB, performed detailed statistical analysis as required by the project, developed comprehensive documentation on the master RMD file, and merged/tested RMD file contributions from all teammates. Also, taskmaster for team to get deliverables completed on time.
 
-**Soumya** - developed the MySQL database for the project combining the SEERS (using the CSV files Romerl recreated) and CI5 research databases, creates ETL bulk load scripts to populate the data, developed the data pull queries,
+**Soumya** - developed the MySQL database for the project combining the SEERS (using the CSV files Romerl recreated) and CI5 research databases, creates ETL bulk load scripts to populate the data, developed the data pull queries, performed exploratory analysis and created visualization for CI5 data set for UK.
 
 **Jason** - developed the initial idea for researching cancer data. Identified the two data sources that will be used in the project, developed drill downs between two country samples, developed sun burst charts.
 
@@ -53,9 +53,9 @@ The final project objectives have been changed to reflect the realities of the p
 
 - Statistically analyze the SEER data for validity prior to conducting a more detailed investigation. Specific focus is on the survivability in years vs. diagnosis year for 9 types of cancer in the United States.
 
-- Display a global view of the data using graphs and tables.
+- Display a global view of the cancer data and perform exploratory analysis for sample region (UK) with CI5 data set using graphs and tables.
 
-- Drill down comparison between two countries with specific cancer indications.
+- Drill down comparison between two countries (Bulgaria and Netherlands) with specific cancer indications.
 
 ## Rubrics Satisfied
 
@@ -77,7 +77,7 @@ The non-presentation requirements for the project have been satisfied according 
 
 -	**Project includes at least one feature that we did not cover in class!** - COMPLETED. Project displayed a Pyramid Chart and several Sun Burst charts that were not discussed in this course.
 
--	**Code and data. Have you delivered the submitted code and data where it is self-contained-preferably in rpubs.com and github? Am I able to fully reproduce your results with what you've delivered? You won't receive full credit if your code references data on your local machine!** - COMPLETED. All code was submitted for the project. The data is at least 10 MB. At this time it was not possible to include this data in the project submission as it required comprehensive cleaning and transformation in order for it to be used in a MySQL database. A One Drive link to the zip file of the SEER Data CSV files (155 MB) can be found here: https://spsmailcuny-my.sharepoint.com/:u:/g/personal/romerl_elizes36_spsmail_cuny_edu/EV6WbISZr-dCmGWuYzj7rKYBou-6sr3h0AJ1A48Fxb0sbQ?e=8hn68u. 
+-	**Code and data. Have you delivered the submitted code and data where it is self-contained-preferably in rpubs.com and github? Am I able to fully reproduce your results with what you've delivered? You won't receive full credit if your code references data on your local machine!** - COMPLETED. All code was submitted for the project. The data is at least 10 MB. At this time it was not possible to include this data in the project submission as it required comprehensive cleaning and transformation in order for it to be used in a MySQL database. A One Drive link to the zip file of the SEER Data CSV files (155 MB) can be found here: https://spsmailcuny-my.sharepoint.com/:u:/g/personal/romerl_elizes36_spsmail_cuny_edu/EV6WbISZr-dCmGWuYzj7rKYBou-6sr3h0AJ1A48Fxb0sbQ?e=8hn68u. The link for compressed CI5 CSV files (127MB) data set is here: https://spsmailcuny-my.sharepoint.com/:u:/g/personal/soumya_ghosh58_spsmail_cuny_edu/ESWOE8LwQz9LgNlKDtlaoKAB1j2v-EDVF0O5oLFKhlpBJQ?e=FgokiJ
 
 -	**Code and data. Does all of the delivered code run without errors?** - COMPLETED. All code ran without errors.
 
@@ -239,6 +239,41 @@ CI5MasterDF$BeginAge <- as.numeric(str_extract(CI5MasterDF$AgeGroup,"\\d{1,2} ")
 
 tmpCI5MasterDF <- head(CI5MasterDF)
 tmpCI5MasterDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
+
+```
+
+#### C. CI5 Global Population Data - Placing in Data Frames and data Query
+
+The CI5 population data was queried straight from the established SQL database. A single SQL query was leveraged using JOINs and GROUP BY and its results were displayed in a Kable to verify that the data could be queried.
+
+```{r store-ci5-pop-into-data-frames, fig.width = 10, fig.height = 6, message=FALSE, warning=FALSE}
+
+Query_pop <- "SELECT 
+reg.Continent, 
+reg.Country,
+pop.Year,
+pop.AgeGroup,
+pop.Sex,
+sum(pop.TotalPopulation) as Population
+FROM
+ SEERS_Analysis.population_details as pop
+INNER JOIN
+ SEERS_Analysis.cancer_registry_master as reg
+ ON pop.CancerRegistryID = reg.CancerRegistryID
+GROUP BY
+ reg.Continent, 
+ reg.Country,
+ pop.Year,
+ pop.AgeGroup,
+ pop.Sex"
+
+CI5PopMasterDF <- sqlQuery(con,Query_pop)
+
+### Derive Year attributes 
+CI5PopMasterDF$BeginAge <- as.numeric(str_extract(CI5PopMasterDF$AgeGroup,"\\d{1,2} "))
+
+tmpCI5PopMasterDF <- head(CI5PopMasterDF)
+tmpCI5PopMasterDF %>% kable() %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% scroll_box(width="100%",height="300px")
 
 ```
 
@@ -676,27 +711,52 @@ ggplotly(p)
 
 From the trend chart above Americas, Asia and Europe show a growing trend in cancer cases whereas Oceania and Africa show flat trend. But this could be due to limited reported data from those regions.
 
-## Population Pyramid - UK Cancer Incidence
+#### Population Pyramid - UK 
 
-We picked UK as a sample country to understand the age distribution of cancer patients with a break down by gender through a population pyramid.
+We picked UK as a sample region to understand the age distribution of population at Risk with a break down by gender through a population pyramid.
 
 ```{r ci5-popoulation-pyramid, message=FALSE, warning=FALSE}
+UKPopSummary_DF <- CI5PopMasterDF  %>% filter(Country =="UK") %>% group_by(Sex,AgeGroup,BeginAge) %>% 
+summarise(Population=sum(Population))
+UKPopSummary_DF$Population <- ifelse(UKPopSummary_DF$Sex == "M", -1*UKPopSummary_DF$Population, UKPopSummary_DF$Population)
 
-UKSummary_DF <- CI5MasterDF  %>% filter(Country =="UK") %>% group_by(Sex,AgeGroup,BeginAge) %>%  summarise(CancerCases=sum(CancerCases))
+p0 <- ggplot(UKPopSummary_DF, aes(x = reorder(AgeGroup,BeginAge), y = Population, fill = Sex)) + 
+  geom_bar(data = subset(UKPopSummary_DF, Sex == "F"), stat = "identity") + 
+  geom_bar(data = subset(UKPopSummary_DF, Sex == "M"), stat = "identity") + 
+  scale_y_continuous(breaks = seq(-50000000, 50000000, 10000000), 
+                     labels = paste0(as.character(c(seq(50, 0, -10), seq(10, 50, 10))), "m")) + 
+
+  coord_flip() + 
+  scale_fill_brewer(palette = "Set1") + 
+  ggtitle("Population Pyramid - UK") +
+  labs(y = "Population (in Millions)",x= "Age Group") +
+  theme_bw()
+
+ggplotly(p0)
+```
+
+
+#### Cancer Incidence Pyramid - UK
+
+We picked UK as a sample region to understand the age distribution of cancer patients with a break down by gender through an incidence pyramid.
+
+```{r ci5-cancer-pyramid, message=FALSE, warning=FALSE}
+UKSummary_DF <- CI5MasterDF  %>% filter(Country =="UK") %>% group_by(Sex,AgeGroup,BeginAge) %>% 
+summarise(CancerCases=sum(CancerCases))
 UKSummary_DF$CancerCases <- ifelse(UKSummary_DF$Sex == "M", -1*UKSummary_DF$CancerCases, UKSummary_DF$CancerCases)
 
 p1 <- ggplot(UKSummary_DF, aes(x = reorder(AgeGroup,BeginAge), y = CancerCases, fill = Sex)) + 
   geom_bar(data = subset(UKSummary_DF, Sex == "F"), stat = "identity") + 
   geom_bar(data = subset(UKSummary_DF, Sex == "M"), stat = "identity") + 
-  scale_y_continuous(breaks = seq(-15000000, 15000000, 5000000), 
-                     labels = paste0(as.character(c(seq(15, 0, -5), seq(5, 15, 5))), "m")) + 
+  scale_y_continuous(breaks = seq(-15000000, 15000000, 3000000), 
+                     labels = paste0(as.character(c(seq(15, 0, -3), seq(3, 15, 3))), "m")) + 
   coord_flip() + 
   scale_fill_brewer(palette = "Set1") + 
-  ggtitle("Population Pyramid for Cancer Patients - UK") +
+  ggtitle("Incidence Pyramid for Cancer Patients - UK") +
+  labs(y = "Cancer Cases (in Millions)",x= "Age Group") +
   theme_bw()
 
 ggplotly(p1)
-
 ```
 
 For male 70-74 age group has most no. of reported cancer incidence whereas for female, age group 75-79 has most no. of cancer cases. Based on the chart above we excluded age group below 35 for further analysis. 
