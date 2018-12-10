@@ -900,7 +900,7 @@ names(NethMinusBulgby100000)<-names(NethWithAgesper100000)<-c("Age","Cancer_Rate
 ggplotly(ggplot(NethMinusBulgby100000,aes(x=Age,y=Cancer_Rate_Difference))+geom_point()+ggtitle("Netherlands/Bulgaria Cancer Rate Difference per 100,000 by Five Year Age Group, 2011"))
 ```
 
-We uploaded cancer_detailed_modified2.csv to my github. The dashes are in the All.cancers.excluding.non.melanoma.skin are necessary for the sunburst.  Given RStudios' autofill, we did not fix the column names except at the end. 
+We uploaded cancer_detailed_modified2.csv to Jason's github. The dashes are in the All.cancers.excluding.non.melanoma.skin are necessary for the sunburst.  Given RStudios' autofill, we did not fix the column names except at the end. 
 
 ```{r defineFunctionForCancerRetrieval,  message=FALSE, warning=FALSE, fig.width = 8, fig.height = 6}
 CDict<-read.csv("https://raw.githubusercontent.com/jgivensdoyle/607/master/cancer_detailed_modified2.csv",stringsAsFactors = FALSE)
